@@ -32,12 +32,15 @@ import com.vuforia.VideoBackgroundConfig;
 import com.vuforia.VideoMode;
 import com.vuforia.Vuforia;
 import com.vuforia.Vuforia.UpdateCallbackInterface;
-import com.vuforia.samples.VuforiaSamples.R;
+
+import ciu196.chalmers.se.armuseum.R;
 
 
 public class SampleApplicationSession implements UpdateCallbackInterface
 {
-    
+
+    private static final String LICENSE_KEY = "ARqiWff/////AAAAGTlz1aJGMUsMkTjl0ouXW6cCK3RVTVI9+USa3fpJ/5MzwdTeNjqkj1W9Ei92RnFfY+7G9QPgghbO7tE2TecZy8j+S1sFnW8LkMhO2C8g1WLkMxYmu+tUVFg8+v79I0o0D+xI3+hHk9LkujBaEY1Wl7D21euPdKDniWfhF3PWXKu1cKtOBjGZ/ekjCcdUrLJ5L7f4ZPnVcerFi75pLDfnnEB897z7kZ0U17PM3hHHwLbsHt1WvCpFQ7RPM+hdy13LRSuFlvjJEmJX48vWqnSByGK+CXh0XIl/eJw4TOCexZMt2NukixVNbaGzqAMNW7gdA7sAFkruY34h/IQHCCF9FQ/qCv/kVYOzLeBGeIjRSQWQ";
+
     private static final String LOGTAG = "SampleAppSession";
     
     // Reference to the current activity
@@ -381,7 +384,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
             // Prevent the onDestroy() method to overlap with initialization:
             synchronized (mShutdownLock)
             {
-                Vuforia.setInitParameters(mActivity, mVuforiaFlags, "");
+                Vuforia.setInitParameters(mActivity, mVuforiaFlags, LICENSE_KEY);
                 
                 do
                 {
