@@ -280,23 +280,23 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
     private void startLoadingAnimation()
     {
-//        mUILayout = (RelativeLayout) View.inflate(this, R.layout.camera_overlay,
-//                null);
-//
-//        mUILayout.setVisibility(View.VISIBLE);
-//        mUILayout.setBackgroundColor(Color.BLACK);
-//
-//        // Gets a reference to the loading dialog
-//        loadingDialogHandler.mLoadingDialogContainer = mUILayout
-//                .findViewById(R.id.loading_indicator);
-//
-//        // Shows the loading indicator at start
-//        loadingDialogHandler
-//                .sendEmptyMessage(LoadingDialogHandler.SHOW_LOADING_DIALOG);
-//
-//        // Adds the inflated layout to the view
-//        addContentView(mUILayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-//                ViewGroup.LayoutParams.MATCH_PARENT));
+        mUILayout = (RelativeLayout) View.inflate(this, R.layout.camera_overlay,
+                null);
+
+        mUILayout.setVisibility(View.VISIBLE);
+        mUILayout.setBackgroundColor(Color.BLACK);
+
+        // Gets a reference to the loading dialog
+        loadingDialogHandler.mLoadingDialogContainer = mUILayout
+                .findViewById(R.id.loading_indicator);
+
+        // Shows the loading indicator at start
+        loadingDialogHandler
+                .sendEmptyMessage(LoadingDialogHandler.SHOW_LOADING_DIALOG);
+
+        // Adds the inflated layout to the view
+        addContentView(mUILayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
     }
 
