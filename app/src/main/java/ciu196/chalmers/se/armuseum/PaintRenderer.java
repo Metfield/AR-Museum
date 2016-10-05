@@ -31,11 +31,11 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeObject;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplication3DModel;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleUtils;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.Teapot;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 
 
@@ -56,7 +56,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     private int mvpMatrixHandle;
     private int texSampler2DHandle;
 
-    private Teapot mTeapot;
+    private CubeObject mCube;
 
     private float kBuildingScale = 12.0f;
     private SampleApplication3DModel mBuildingsModel;
@@ -64,7 +64,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     boolean mIsActive = false;
     boolean mModelsLoaded = false;
 
-    private static final float OBJECT_SCALE_FLOAT = 3.0f;
+    private static final float OBJECT_SCALE_FLOAT = 50.0f;
 
 
     public PaintRenderer(MainActivity activity, SampleApplicationSession session)
@@ -157,7 +157,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 "texSampler2D");
 
         if(!mModelsLoaded) {
-            mTeapot = new Teapot();
+            mCube = new CubeObject();
 
             try {
                 mBuildingsModel = new SampleApplication3DModel();
@@ -233,9 +233,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
             if (!mActivity.isExtendedTrackingActive()) {
                 GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT,
-                        false, 0, mTeapot.getVertices());
+                        false, 0, mCube.getVertices());
                 GLES20.glVertexAttribPointer(textureCoordHandle, 2,
-                        GLES20.GL_FLOAT, false, 0, mTeapot.getTexCoords());
+                        GLES20.GL_FLOAT, false, 0, mCube.getTexCoords());
 
                 GLES20.glEnableVertexAttribArray(vertexHandle);
                 GLES20.glEnableVertexAttribArray(textureCoordHandle);
@@ -252,8 +252,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
                 // finally draw the teapot
                 GLES20.glDrawElements(GLES20.GL_TRIANGLES,
-                        mTeapot.getNumObjectIndex(), GLES20.GL_UNSIGNED_SHORT,
-                        mTeapot.getIndices());
+                        mCube.getNumObjectIndex(), GLES20.GL_UNSIGNED_SHORT,
+                        mCube.getIndices());
 
                 // disable the enabled arrays
                 GLES20.glDisableVertexAttribArray(vertexHandle);
