@@ -13,6 +13,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.vuforia.Device;
 import com.vuforia.Matrix44F;
@@ -45,6 +46,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 {
     private static final String LOGTAG = "ImageTargetRenderer";
 
+    private final int CANVAS_TEXTURE = 0;
+
     private SampleApplicationSession vuforiaAppSession;
     private MainActivity mActivity;
     private SampleAppRenderer mSampleAppRenderer;
@@ -65,8 +68,10 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     boolean mIsActive = false;
     boolean mModelsLoaded = false;
 
-    private static final float OBJECT_SCALE_FLOAT = 200.0f;
+    // @Eman
+    private Texture mCanvasTexture;
 
+    private static final float OBJECT_SCALE_FLOAT = 200.0f;
 
     public PaintRenderer(MainActivity activity, SampleApplicationSession session)
     {
@@ -207,11 +212,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                     .convertPose2GLMatrix(result.getPose());
             float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
 
-            int textureIndex = trackable.getName().equalsIgnoreCase("stones") ? 0
-                    : 1;
-            textureIndex = trackable.getName().equalsIgnoreCase("tarmac") ? 2
-                    : textureIndex;
-
             // deal with the modelview and projection matrices
             float[] modelViewProjection = new float[16];
 
@@ -240,7 +240,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
                 // activate texture 0, bind it, and pass to shader
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextures.get(textureIndex).mTextureID[0]);
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, this.getCanvasTexture().mTextureID[0]);
                 GLES20.glUniform1i(texSampler2DHandle, 0);
 
                 // pass the model view matrix to the shader
@@ -255,20 +255,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             }
             else
             {
-                GLES20.glDisable(GLES20.GL_CULL_FACE);
-                GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT, false, 0, mBuildingsModel.getVertices());
-                GLES20.glVertexAttribPointer(textureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, mBuildingsModel.getTexCoords());
-
-                GLES20.glEnableVertexAttribArray(vertexHandle);
-                GLES20.glEnableVertexAttribArray(textureCoordHandle);
-
-                GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextures.get(3).mTextureID[0]);
-                GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, modelViewProjection, 0);
-                GLES20.glUniform1i(texSampler2DHandle, 0);
-                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, mBuildingsModel.getNumObjectVertex());
-
-                SampleUtils.checkGLError("Renderer DrawBuildings");
+                Toast.makeText(PaintRenderer.this.mActivity, "Turn off Extended tracking!!", Toast.LENGTH_SHORT).show();
             }
 
             SampleUtils.checkGLError("Render Frame");
@@ -287,6 +274,13 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     public void setTextures(Vector<Texture> textures)
     {
         mTextures = textures;
+        mCanvasTexture = textures.get(CANVAS_TEXTURE);
+    }
+
+    public Texture getCanvasTexture()
+    {
+        // Do the whole texture getting here
+        return mCanvasTexture;
     }
     
 }
