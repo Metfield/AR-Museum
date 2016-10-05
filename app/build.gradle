@@ -5,8 +5,8 @@ def NATIVE_LIB_DIR = 'build/lib'
 def JAR_DIR = 'build/java/vuforia'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     sourceSets.main {
         jni.srcDirs = []
@@ -15,8 +15,8 @@ android {
 
     defaultConfig {
         applicationId "ciu196.chalmers.se.armuseum"
-        minSdkVersion 17
-        targetSdkVersion 23
+        minSdkVersion 8
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -33,6 +33,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:appcompat-v7:22.1.1'
     compile files("$VUFORIA_SDK_DIR/$JAR_DIR/Vuforia.jar")
 }
