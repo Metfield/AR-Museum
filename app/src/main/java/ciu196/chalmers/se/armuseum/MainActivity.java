@@ -38,8 +38,8 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplicationGLView;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 
-public class MainActivity extends AppCompatActivity implements SampleApplicationControl {
-
+public class MainActivity extends AppCompatActivity implements SampleApplicationControl
+{
     private static final String LOGTAG = "MainActivity";
 
     SampleApplicationSession vuforiaAppSession;
