@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         startLoadingAnimation();
         mDatasetStrings.add("StonesAndChips.xml");
         mDatasetStrings.add("Tarmac.xml");
+        mDatasetStrings.add("ARMuseumDataBase.xml");
 
         vuforiaAppSession
                 .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -107,8 +108,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     }
 
     // Process Single Tap event to trigger autofocus
-    private class GestureListener extends
-            GestureDetector.SimpleOnGestureListener
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener
     {
         // Used to set autofocus one second after a manual focus is triggered
         private final Handler autofocusHandler = new Handler();

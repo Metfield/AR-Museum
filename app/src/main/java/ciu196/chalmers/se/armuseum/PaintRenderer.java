@@ -148,14 +148,10 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 CubeShaders.CUBE_MESH_VERTEX_SHADER,
                 CubeShaders.CUBE_MESH_FRAGMENT_SHADER);
 
-        vertexHandle = GLES20.glGetAttribLocation(shaderProgramID,
-                "vertexPosition");
-        textureCoordHandle = GLES20.glGetAttribLocation(shaderProgramID,
-                "vertexTexCoord");
-        mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramID,
-                "modelViewProjectionMatrix");
-        texSampler2DHandle = GLES20.glGetUniformLocation(shaderProgramID,
-                "texSampler2D");
+        vertexHandle = GLES20.glGetAttribLocation(shaderProgramID, "vertexPosition");
+        textureCoordHandle = GLES20.glGetAttribLocation(shaderProgramID, "vertexTexCoord");
+        mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramID, "modelViewProjectionMatrix");
+        texSampler2DHandle = GLES20.glGetUniformLocation(shaderProgramID, "texSampler2D");
 
         if(!mModelsLoaded)
         {
@@ -164,8 +160,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             try
             {
                 mBuildingsModel = new SampleApplication3DModel();
-                mBuildingsModel.loadModel(mActivity.getResources().getAssets(),
-                        "ImageTargets/Buildings.txt");
+                mBuildingsModel.loadModel(mActivity.getResources().getAssets(), "ImageTargets/Buildings.txt");
                 mModelsLoaded = true;
             } catch (IOException e)
             {
@@ -173,8 +168,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             }
 
             // Hide the Loading Dialog
-            mActivity.loadingDialogHandler
-                    .sendEmptyMessage(LoadingDialogHandler.HIDE_LOADING_DIALOG);
+            mActivity.loadingDialogHandler.sendEmptyMessage(LoadingDialogHandler.HIDE_LOADING_DIALOG);
         }
         
     }
@@ -204,28 +198,34 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             GLES20.glFrontFace(GLES20.GL_CCW); // Back camera
 
         // Did we find any trackables this frame?
-        for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
+        for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++)
+        {
             TrackableResult result = state.getTrackableResult(tIdx);
             Trackable trackable = result.getTrackable();
             printUserData(trackable);
-            Matrix44F modelViewMatrix_Vuforia = Tool
-                    .convertPose2GLMatrix(result.getPose());
+            Matrix44F modelViewMatrix_Vuforia = Tool.convertPose2GLMatrix(result.getPose());
             float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
 
             // deal with the modelview and projection matrices
             float[] modelViewProjection = new float[16];
 
-            if (!mActivity.isExtendedTrackingActive()) {
-                Matrix.translateM(modelViewMatrix, 0, 0.0f, 0.0f,
-                        OBJECT_SCALE_FLOAT);
-                Matrix.scaleM(modelViewMatrix, 0, OBJECT_SCALE_FLOAT,
-                        OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT);
-            } else {
-                Matrix.rotateM(modelViewMatrix, 0, 90.0f, 1.0f, 0, 0);
-                Matrix.scaleM(modelViewMatrix, 0, kBuildingScale,
-                        kBuildingScale, kBuildingScale);
+            if (!mActivity.isExtendedTrackingActive())
+            {
+                Matrix.translateM(modelViewMatrix, 0, 0.0f, 0.0f, OBJECT_SCALE_FLOAT);
+                Matrix.scaleM(modelViewMatrix, 0, OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT);
             }
+            else
+            {
+                Matrix.rotateM(modelViewMatrix, 0, 90.0f, 1.0f, 0, 0);
+                Matrix.scaleM(modelViewMatrix, 0, kBuildingScale, kBuildingScale, kBuildingScale);
+            }
+
             Matrix.multiplyMM(modelViewProjection, 0, projectionMatrix, 0, modelViewMatrix, 0);
+
+
+            // Add code for touches here
+
+
 
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
@@ -241,6 +241,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 // activate texture 0, bind it, and pass to shader
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, this.getCanvasTexture().mTextureID[0]);
+                GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, mCanvasTexture.mWidth, mCanvasTexture.mHeight, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, mCanvasTexture.mData);
                 GLES20.glUniform1i(texSampler2DHandle, 0);
 
                 // pass the model view matrix to the shader
@@ -280,6 +281,10 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     public Texture getCanvasTexture()
     {
         // Do the whole texture getting here
+
+        // while touching
+        mCanvasTexture.updatePixels();
+
         return mCanvasTexture;
     }
     

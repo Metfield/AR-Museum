@@ -33,6 +33,10 @@ public class Texture
     public ByteBuffer mData;    // The pixel data.
     public int[] mTextureID = new int[1];
     public boolean mSuccess = false;
+
+    public ByteBuffer mTempBuffer;
+    public int mNumPixels;
+    public byte[] mDataBytes;
     
     /* Factory function to load a texture from the APK. */
     public static Texture loadTextureFromApk(String fileName,
@@ -81,14 +85,23 @@ public class Texture
         texture.mWidth = width;
         texture.mHeight = height;
         texture.mChannels = 4;
+
+        // Eman
+        texture.mNumPixels = numPixels;
+        texture.mDataBytes = dataBytes;
         
-        texture.mData = ByteBuffer.allocateDirect(dataBytes.length).order(
-            ByteOrder.nativeOrder());
+        texture.mData = ByteBuffer.allocateDirect(dataBytes.length).order(ByteOrder.nativeOrder());
+
+        // Also initialize tempBuffer
+        texture.mTempBuffer = ByteBuffer.allocateDirect(dataBytes.length).order(ByteOrder.nativeOrder());
+
         int rowSize = texture.mWidth * texture.mChannels;
+
         for (int r = 0; r < texture.mHeight; r++)
-            texture.mData.put(dataBytes, rowSize * (texture.mHeight - 1 - r),
-                rowSize);
-        
+        {
+            texture.mData.put(dataBytes, rowSize * (texture.mHeight - 1 - r), rowSize);
+        }
+
         texture.mData.rewind();
         
         // Cleans variables
@@ -97,5 +110,26 @@ public class Texture
         
         texture.mSuccess = true;
         return texture;
+    }
+
+    public void updatePixels()
+    {
+        for (int p = 0; p < mNumPixels; ++p)
+        {
+            mDataBytes[p * 4] = (byte) (128 >>> 16); // R
+            mDataBytes[p * 4 + 1] = (byte) (255 >>> 8); // G
+            mDataBytes[p * 4 + 2] = (byte) 120; // B
+            mDataBytes[p * 4 + 3] = (byte) (255 >>> 24); // A
+        }
+
+        int rowSize = mWidth * mChannels;
+
+        for (int r = 0; r < mHeight; r++)
+        {
+            mTempBuffer.put(mDataBytes, rowSize * (mHeight - 1 - r), rowSize);
+        }
+
+        mData = mTempBuffer;
+        mTempBuffer.rewind();
     }
 }
