@@ -250,7 +250,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
                         modelViewProjection, 0);
 
-                // finally draw the teapot
+                // finally draw the cube
                 GLES20.glDrawElements(GLES20.GL_TRIANGLES,
                         mCube.getNumObjectIndex(), GLES20.GL_UNSIGNED_SHORT,
                         mCube.getIndices());

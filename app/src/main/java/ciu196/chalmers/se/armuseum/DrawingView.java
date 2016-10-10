@@ -9,7 +9,13 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.vuforia.Matrix44F;
+import com.vuforia.Vec2F;
+import com.vuforia.Vec3F;
+
 import java.util.jar.Attributes;
+
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleMath;
 
 /**
  * Created by johnpetersson on 2016-10-05.
@@ -77,5 +83,17 @@ public class DrawingView extends View {
         invalidate();
         return true;
     }
+
+//    private Vec3F getPointIn3DPlane(Vec2F point) {
+//        Matrix44F inverseProjMatrix =
+//        Matrix44F modelViewMatrix
+//        float screenWidth
+//        float screenHeight
+//        Vec2F point
+//        Vec3F planeCenter
+//        Vec3F planeNormal
+//
+//        return SampleMath.getPointToPlaneIntersection(inverseProjMatrix, modelViewMatrix, screenWidth, screenHeight, point, planeCenter, planeNormal);
+//    }
 
 }
