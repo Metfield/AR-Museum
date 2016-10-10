@@ -67,6 +67,8 @@ public class DrawingView extends View {
                 break;
             case MotionEvent.ACTION_UP:
                 drawCanvas.drawPath(drawPath, drawPaint);
+                saveDrawPath(drawPath);
+
                 drawPath.reset();
             default:
                 return false;
@@ -74,6 +76,10 @@ public class DrawingView extends View {
         // Invalidate the view to get it to redraw (onDraw())
         invalidate();
         return true;
+    }
+
+    private void saveDrawMotion(Path drawPath, Paint drawPaint) {
+
     }
 
 }

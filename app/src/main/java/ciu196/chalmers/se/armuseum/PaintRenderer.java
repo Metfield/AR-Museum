@@ -13,6 +13,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.vuforia.Device;
 import com.vuforia.Matrix44F;
@@ -31,6 +32,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.CanvasMesh;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeObject;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
@@ -44,6 +46,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 {
     private static final String LOGTAG = "ImageTargetRenderer";
 
+    private final int CANVAS_TEXTURE = 0;
+
     private SampleApplicationSession vuforiaAppSession;
     private MainActivity mActivity;
     private SampleAppRenderer mSampleAppRenderer;
@@ -56,7 +60,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     private int mvpMatrixHandle;
     private int texSampler2DHandle;
 
-    private CubeObject mCube;
+    private CanvasMesh mCanvas;
 
     private float kBuildingScale = 12.0f;
     private SampleApplication3DModel mBuildingsModel;
@@ -64,8 +68,10 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     boolean mIsActive = false;
     boolean mModelsLoaded = false;
 
-    private static final float OBJECT_SCALE_FLOAT = 50.0f;
+    // @Eman
+    private Texture mCanvasTexture;
 
+    private static final float OBJECT_SCALE_FLOAT = 200.0f;
 
     public PaintRenderer(MainActivity activity, SampleApplicationSession session)
     {
@@ -111,7 +117,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     
     // Called when the surface changed size.
     @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
+    public void onSurfaceChanged(GL10 gl, int width, int height)
+    {
         Log.d(LOGTAG, "GLRenderer.onSurfaceChanged");
         
         // Call Vuforia function to handle render surface size changes:
@@ -121,26 +128,20 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         mSampleAppRenderer.onConfigurationChanged();
 
         initRendering();
-
     }
     
     // Function for initializing the renderer.
     private void initRendering()
     {
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, Vuforia.requiresAlpha() ? 0.0f
-                : 1.0f);
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, Vuforia.requiresAlpha() ? 0.0f : 1.0f);
         
         for (Texture t : mTextures)
         {
             GLES20.glGenTextures(1, t.mTextureID, 0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t.mTextureID[0]);
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                    GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
-                    GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
-                    t.mWidth, t.mHeight, 0, GLES20.GL_RGBA,
-                    GLES20.GL_UNSIGNED_BYTE, t.mData);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, t.mWidth, t.mHeight, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, t.mData);
         }
         
         shaderProgramID = SampleUtils.createProgramFromShaderSrc(
@@ -156,15 +157,18 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         texSampler2DHandle = GLES20.glGetUniformLocation(shaderProgramID,
                 "texSampler2D");
 
-        if(!mModelsLoaded) {
-            mCube = new CubeObject();
+        if(!mModelsLoaded)
+        {
+            mCanvas = new CanvasMesh();
 
-            try {
+            try
+            {
                 mBuildingsModel = new SampleApplication3DModel();
                 mBuildingsModel.loadModel(mActivity.getResources().getAssets(),
                         "ImageTargets/Buildings.txt");
                 mModelsLoaded = true;
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 Log.e(LOGTAG, "Unable to load buildings");
             }
 
@@ -208,11 +212,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                     .convertPose2GLMatrix(result.getPose());
             float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
 
-            int textureIndex = trackable.getName().equalsIgnoreCase("stones") ? 0
-                    : 1;
-            textureIndex = trackable.getName().equalsIgnoreCase("tarmac") ? 2
-                    : textureIndex;
-
             // deal with the modelview and projection matrices
             float[] modelViewProjection = new float[16];
 
@@ -231,61 +230,38 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
 
-            if (!mActivity.isExtendedTrackingActive()) {
-                GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT,
-                        false, 0, mCube.getVertices());
-                GLES20.glVertexAttribPointer(textureCoordHandle, 2,
-                        GLES20.GL_FLOAT, false, 0, mCube.getTexCoords());
+            if (!mActivity.isExtendedTrackingActive())
+            {
+                GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT, false, 0, mCanvas.getVertices());
+                GLES20.glVertexAttribPointer(textureCoordHandle, 2, GLES20.GL_FLOAT, false, 0, mCanvas.getTexCoords());
 
                 GLES20.glEnableVertexAttribArray(vertexHandle);
                 GLES20.glEnableVertexAttribArray(textureCoordHandle);
 
                 // activate texture 0, bind it, and pass to shader
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                        mTextures.get(textureIndex).mTextureID[0]);
+                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, this.getCanvasTexture().mTextureID[0]);
                 GLES20.glUniform1i(texSampler2DHandle, 0);
 
                 // pass the model view matrix to the shader
-                GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
-                        modelViewProjection, 0);
+                GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, modelViewProjection, 0);
 
-                // finally draw the cube
-                GLES20.glDrawElements(GLES20.GL_TRIANGLES,
-                        mCube.getNumObjectIndex(), GLES20.GL_UNSIGNED_SHORT,
-                        mCube.getIndices());
+                // finally draw the teapot
+                GLES20.glDrawElements(GLES20.GL_TRIANGLES, mCanvas.getNumObjectIndex(), GLES20.GL_UNSIGNED_SHORT, mCanvas.getIndices());
 
                 // disable the enabled arrays
                 GLES20.glDisableVertexAttribArray(vertexHandle);
                 GLES20.glDisableVertexAttribArray(textureCoordHandle);
-            } else {
-                GLES20.glDisable(GLES20.GL_CULL_FACE);
-                GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT,
-                        false, 0, mBuildingsModel.getVertices());
-                GLES20.glVertexAttribPointer(textureCoordHandle, 2,
-                        GLES20.GL_FLOAT, false, 0, mBuildingsModel.getTexCoords());
-
-                GLES20.glEnableVertexAttribArray(vertexHandle);
-                GLES20.glEnableVertexAttribArray(textureCoordHandle);
-
-                GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-                GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,
-                        mTextures.get(3).mTextureID[0]);
-                GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
-                        modelViewProjection, 0);
-                GLES20.glUniform1i(texSampler2DHandle, 0);
-                GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0,
-                        mBuildingsModel.getNumObjectVertex());
-
-                SampleUtils.checkGLError("Renderer DrawBuildings");
+            }
+            else
+            {
+                Toast.makeText(PaintRenderer.this.mActivity, "Turn off Extended tracking!!", Toast.LENGTH_SHORT).show();
             }
 
             SampleUtils.checkGLError("Render Frame");
-
         }
 
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-
     }
 
     private void printUserData(Trackable trackable)
@@ -298,7 +274,13 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     public void setTextures(Vector<Texture> textures)
     {
         mTextures = textures;
-        
+        mCanvasTexture = textures.get(CANVAS_TEXTURE);
+    }
+
+    public Texture getCanvasTexture()
+    {
+        // Do the whole texture getting here
+        return mCanvasTexture;
     }
     
 }

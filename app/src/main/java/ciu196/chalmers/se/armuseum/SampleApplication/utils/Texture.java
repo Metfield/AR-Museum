@@ -34,7 +34,6 @@ public class Texture
     public int[] mTextureID = new int[1];
     public boolean mSuccess = false;
     
-    
     /* Factory function to load a texture from the APK. */
     public static Texture loadTextureFromApk(String fileName,
         AssetManager assets)
@@ -63,8 +62,7 @@ public class Texture
     }
     
     
-    public static Texture loadTextureFromIntBuffer(int[] data, int width,
-        int height)
+    public static Texture loadTextureFromIntBuffer(int[] data, int width, int height)
     {
         // Convert:
         int numPixels = width * height;
