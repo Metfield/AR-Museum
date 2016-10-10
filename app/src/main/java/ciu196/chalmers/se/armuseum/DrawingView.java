@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,7 +22,10 @@ public class DrawingView extends View {
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
 
+    private float brushsize;
+    private float lastBrushSize; // For when you switch to eraser
 
+    private boolean isErasing = false;
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -28,11 +33,15 @@ public class DrawingView extends View {
     }
 
     private void setupDrawing() {
+//        brushsize = getResources().getInteger(R.integer.standard_size);
+        brushsize = 20;
+        lastBrushSize = brushsize;
+
         drawPath = new Path();
         drawPaint = new Paint();
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
-        drawPaint.setStrokeWidth(20);
+        drawPaint.setStrokeWidth(brushsize);
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -82,4 +91,29 @@ public class DrawingView extends View {
 
     }
 
+    private void setBrushsize(float size) {
+        brushsize = size;
+        lastBrushSize = brushsize;
+        drawPaint.setStrokeWidth(size);
+
+    }
+
+    private float getBrushsize() {
+        return brushsize;
+    }
+
+    private float getLastBrushSize() {
+        return lastBrushSize;
+    }
+
+    public void setErasing(boolean isErasing) {
+        this.isErasing = isErasing;
+
+        if (isErasing) {
+            drawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        } else {
+            drawPaint.setXfermode(null);
+        }
+
+    }
 }
