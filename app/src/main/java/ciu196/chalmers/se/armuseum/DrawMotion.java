@@ -11,14 +11,28 @@ import java.util.Date;
  */
 public class DrawMotion {
 
-    private Path drawPath;
-    private Paint drawPaint;
-    private Date timeStamp;
+    private String test = "teststring";
 
-    public DrawMotion(Path drawPath, Paint drawPaint) {
+    private SerializablePath drawPath;
+//    private Paint drawPaint;
+//    private Date timeStamp;
+
+    public DrawMotion() {
+
+    }
+
+    public DrawMotion(SerializablePath drawPath, Paint drawPaint) {
         this.drawPath = drawPath;
-        this.drawPaint = drawPaint;
-        this.timeStamp = new Date();
+//        this.drawPaint = drawPaint;
+//        this.timeStamp = new Date();
+    }
+
+    public String getTest() {
+        return test;
+    }
+
+    public SerializablePath getDrawPath() {
+        return drawPath;
     }
 
 

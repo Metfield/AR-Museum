@@ -11,12 +11,17 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 /**
  * Created by johnpetersson on 2016-10-05.
  */
 public class DrawingView extends View {
 
-    private Path drawPath;
+    public static final String DRAW_MOTION_CHILD = "drawmotion";
+
+    private SerializablePath drawPath;
     private Paint drawPaint, canvasPaint;
     private int paintColor = 0xFF550000;
     private Canvas drawCanvas;
@@ -26,6 +31,8 @@ public class DrawingView extends View {
     private float lastBrushSize; // For when you switch to eraser
 
     private boolean isErasing = false;
+
+    private DatabaseReference mFirebaseDatabaseReference;
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -37,7 +44,7 @@ public class DrawingView extends View {
         brushsize = 20;
         lastBrushSize = brushsize;
 
-        drawPath = new Path();
+        drawPath = new SerializablePath();
         drawPaint = new Paint();
         drawPaint.setColor(paintColor);
         drawPaint.setAntiAlias(true);
@@ -47,6 +54,8 @@ public class DrawingView extends View {
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
 
         canvasPaint = new Paint(Paint.DITHER_FLAG);
+
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -87,8 +96,9 @@ public class DrawingView extends View {
         return true;
     }
 
-    private void saveDrawMotion(Path drawPath, Paint drawPaint) {
-
+    private void saveDrawMotion(SerializablePath drawPath, Paint drawPaint) {
+        DrawMotion drawMotion = new DrawMotion(drawPath, drawPaint);
+        mFirebaseDatabaseReference.child(DRAW_MOTION_CHILD).push().setValue(drawMotion);
     }
 
     private void setBrushsize(float size) {

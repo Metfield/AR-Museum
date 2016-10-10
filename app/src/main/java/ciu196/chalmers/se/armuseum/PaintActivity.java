@@ -106,6 +106,7 @@ public class PaintActivity extends AppCompatActivity {
 
         // Database
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+
     }
 
     private void login() {
