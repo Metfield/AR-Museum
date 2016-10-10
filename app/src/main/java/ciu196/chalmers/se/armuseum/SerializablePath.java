@@ -48,6 +48,12 @@ public class SerializablePath extends Path implements Serializable {
         super.moveTo(x, y);
     }
 
+    @Override
+    public void reset() {
+        actions.clear();
+        super.reset();
+    }
+
     private interface Action extends Serializable {
         void perform(Path path);
     }
