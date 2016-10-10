@@ -7,19 +7,27 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.provider.ContactsContract;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * Created by johnpetersson on 2016-10-05.
  */
 public class DrawingView extends View {
 
+    public static final String TAG = "DrawingView";
+
     public static final String DRAW_MOTION_CHILD = "drawmotion";
+    public static final String SERIALIZABLE_PATH_CHILD = "serializablepath";
 
     private SerializablePath drawPath;
     private Paint drawPaint, canvasPaint;
@@ -56,6 +64,7 @@ public class DrawingView extends View {
         canvasPaint = new Paint(Paint.DITHER_FLAG);
 
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
     }
 
     @Override
@@ -97,8 +106,10 @@ public class DrawingView extends View {
     }
 
     private void saveDrawMotion(SerializablePath drawPath, Paint drawPaint) {
-        DrawMotion drawMotion = new DrawMotion(drawPath, drawPaint);
-        mFirebaseDatabaseReference.child(DRAW_MOTION_CHILD).push().setValue(drawMotion);
+//        DrawMotion drawMotion = new DrawMotion(drawPath, drawPaint);
+//        mFirebaseDatabaseReference.child(DRAW_MOTION_CHILD).push().setValue(drawMotion);
+
+        mFirebaseDatabaseReference.child(SERIALIZABLE_PATH_CHILD).push().setValue(drawPath);
     }
 
     private void setBrushsize(float size) {
@@ -126,4 +137,30 @@ public class DrawingView extends View {
         }
 
     }
+
+    ValueEventListener drawingDatabaseListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+//            DrawMotion drawMotion = dataSnapshot.getValue(DrawMotion.class);
+//            DrawMotion drawMotion = dataSnapshot.child(DRAW_MOTION_CHILD).getValue(DrawMotion.class);
+//            String key = dataSnapshot.getKey();
+//            DataSnapshot child = dataSnapshot.child(DRAW_MOTION_CHILD);
+//            String childKey = child.getKey();
+//            DataSnapshot grandChild = child.child(SERIALIZABLE_PATH_CHILD);
+//            String grandchildKey = grandChild.getKey();
+//            SerializablePath path = grandChild.getValue(SerializablePath.class);
+//
+//            Path savedDrawPath = drawMotion.getDrawPath();
+
+            SerializablePath savedDrawPath = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getValue(SerializablePath.class);
+
+            Paint savedPaint = drawPaint; // For now
+            drawCanvas.drawPath(savedDrawPath, savedPaint);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.w(TAG, databaseError.toException());
+        }
+    };
 }

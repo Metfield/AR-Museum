@@ -2,6 +2,8 @@ package ciu196.chalmers.se.armuseum;
 
 import android.graphics.Path;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -12,14 +14,10 @@ import java.util.List;
  * Created by johnpetersson on 2016-10-10.\
  *
  * Code stolen from http://pastebin.com/CtJ5ibA7
+ * and
+ * http://stackoverflow.com/questions/4919740/how-to-serialize-an-object-of-android-graphics-path
  */
 public class SerializablePath extends Path implements Serializable {
-
-    private String name = "pathname";
-
-    public String getName() {
-        return name;
-    }
 
     private List<Action> actions = new LinkedList();
 
@@ -60,7 +58,9 @@ public class SerializablePath extends Path implements Serializable {
 
     private static final class Line implements Action {
 
-        private final float x, y;
+        private float x, y;
+
+        public Line() {}
 
         public Line(float x, float y) {
             this.x = x;
@@ -70,6 +70,14 @@ public class SerializablePath extends Path implements Serializable {
         @Override
         public void perform(Path path) {
             path.lineTo(x, y);
+        }
+
+        public void setX(float x) {
+            this.x = x;
+        }
+
+        public void setY(float y) {
+            this.y = y;
         }
 
         public float getX() {
@@ -83,7 +91,9 @@ public class SerializablePath extends Path implements Serializable {
 
     private static final class Move implements Action {
 
-        private final float x, y;
+        private float x, y;
+
+        public Move() {}
 
         public Move(float x, float y) {
             this.x = x;
@@ -93,6 +103,14 @@ public class SerializablePath extends Path implements Serializable {
         @Override
         public void perform(Path path) {
             path.moveTo(x, y);
+        }
+
+        public void setX(float x) {
+            this.x = x;
+        }
+
+        public void setY(float y) {
+            this.y = y;
         }
 
         public float getX() {
