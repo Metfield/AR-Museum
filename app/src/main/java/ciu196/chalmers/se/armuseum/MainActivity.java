@@ -6,11 +6,9 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +27,7 @@ import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
 
 import java.util.ArrayList;
+import java.util.Queue;
 import java.util.Vector;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationControl;
@@ -37,6 +36,8 @@ import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplicationGLView;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
 
 public class MainActivity extends AppCompatActivity implements SampleApplicationControl
 {
@@ -55,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
     // Our renderer:
     private PaintRenderer mRenderer;
-
-    private GestureDetector mGestureDetector;
 
     // The textures we will use for rendering:
     private Vector<Texture> mTextures;
@@ -77,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
     boolean mIsDroidDevice = false;
 
+    // Eman
+    private TouchCoordQueue mTouchQueue;
+    public TouchCoord tempTouchCoord;
 
     // Called when the activity first starts or the user navigates back to an
     // activity.
@@ -91,24 +93,23 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         startLoadingAnimation();
         mDatasetStrings.add("StonesAndChips.xml");
         mDatasetStrings.add("Tarmac.xml");
+        mDatasetStrings.add("ARMuseumDataBase.xml");
 
-        vuforiaAppSession
-                .initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        mGestureDetector = new GestureDetector(this, new GestureListener());
+        vuforiaAppSession.initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Load any sample specific textures:
         mTextures = new Vector<Texture>();
         loadTextures();
 
-        mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith(
-                "droid");
+        mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith("droid");
 
+        // Eman
+        //mTouchQueue = new TouchCoordQueue();
+        tempTouchCoord = new TouchCoord(0, 0);
     }
 
     // Process Single Tap event to trigger autofocus
-    private class GestureListener extends
-            GestureDetector.SimpleOnGestureListener
+   /* private class GestureListener extends GestureDetector.SimpleOnGestureListener
     {
         // Used to set autofocus one second after a manual focus is triggered
         private final Handler autofocusHandler = new Handler();
@@ -117,7 +118,20 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         @Override
         public boolean onDown(MotionEvent e)
         {
-            return true;
+            final int historySize = e.getHistorySize();
+            int p = 0;
+
+            Log.e("blah", "SUCK IT!! hISTORY size: " + historySize);
+
+            for (int h = 0; h < historySize; h++)
+            {
+                Log.e("BLah!", "TouchCoords: (" + e.getHistoricalX(p, h) + " , " + e.getHistoricalY(p, h) + " )");
+            }
+
+
+
+
+                return true;
         }
 
 
@@ -140,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
             return true;
         }
-    }
+    }*/
 
 
     // We want to load specific textures from the APK, which we will later use
@@ -544,20 +558,45 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     }
 
 
+
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
-        // Process the Gestures
-//        if (mSampleAppMenu != null && mSampleAppMenu.processEvent(event))
-//            return true;
+        int index = event.getActionIndex();
+        int action = event.getActionMasked();
+        int pointerId = event.getPointerId(index);
 
-        return mGestureDetector.onTouchEvent(event);
+
+        switch(action)
+        {
+            case MotionEvent.ACTION_DOWN:
+
+                tempTouchCoord.set((int)event.getX(), (int)event.getY());
+                this.mTouchQueue.push(tempTouchCoord);
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+
+                tempTouchCoord.set((int)event.getX(), (int)event.getY());
+                this.mTouchQueue.push(tempTouchCoord);
+
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                break;
+        }
+
+        return true;
     }
-
 
     boolean isExtendedTrackingActive()
     {
         return mExtendedTracking;
     }
 
+    public TouchCoordQueue getTouchCoordQueue()
+    {
+        return this.mTouchQueue;
+    }
 }
