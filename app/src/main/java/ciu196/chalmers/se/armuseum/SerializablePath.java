@@ -2,7 +2,6 @@ package ciu196.chalmers.se.armuseum;
 
 import android.graphics.Path;
 import android.graphics.Point;
-import android.widget.AbsListView;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,7 +13,7 @@ import java.util.List;
  * Created by johnpetersson on 2016-10-10.\
  *
  */
-public class SerializablePath implements Serializable {
+public class SerializablePath extends Path implements Serializable {
 
     private List<Point> points;
     public List<Point> getPoints() {return points;}
@@ -37,47 +36,6 @@ public class SerializablePath implements Serializable {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    private String name = "TestName";
-//    private List<ChildClass> children;
-//
-//    public SerializablePath() {
-//        children = new LinkedList<>();
-//    }
-//
-//    public String getName() {
-//        return name;
-//    }
-//    public List<ChildClass> getChildren() {return children;}
-//
-//    private class ChildClass implements Serializable {
-//        private String childName = "ChildName";
-//
-//        public ChildClass() {
-//
-//        }
-//
-//        public String getChildName() {
-//            return childName;
-//        }
-//    }
 
 //    private List<Action> actions;
 //
