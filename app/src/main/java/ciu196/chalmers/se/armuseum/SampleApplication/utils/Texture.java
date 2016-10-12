@@ -46,7 +46,7 @@ public class Texture
     private TouchCoordQueue mTouchQueue;
 
     private RGBColor mBrushColor;
-    private float mBrushSize;
+    private double mBrushSize;
 
     /* Factory function to load a texture from the APK. */
     public static Texture loadTextureFromApk(String fileName,

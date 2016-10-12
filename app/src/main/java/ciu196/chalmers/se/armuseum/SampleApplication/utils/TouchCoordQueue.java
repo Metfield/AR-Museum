@@ -19,7 +19,7 @@ public class TouchCoordQueue
     public static int TEXTURE_SIZE;
 
     private static RGBColor currentColor;
-    private static float currentBrushSize;
+    private static double currentBrushSize;
 
     public static void push(TouchCoord tc)
     {
@@ -58,12 +58,12 @@ public class TouchCoordQueue
         currentColor = color;
     }
 
-    public static float getBrushSize()
+    public static double getBrushSize()
     {
         return currentBrushSize;
     }
 
-    public static void setBrushSize(float size)
+    public static void setBrushSize(double size)
     {
         currentBrushSize = size;
     }

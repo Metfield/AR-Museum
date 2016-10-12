@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     // Drawingpath
     private SerializablePath drawingPath;
     private RGBColor currentColor;
-    private float currentBrushSize;
+    private double currentBrushSize;
 
     // Called when the activity first starts or the user navigates back to an
     // activity.
@@ -581,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                 drawingPath.addPoint(new Point(xPos, yPos));
                 break;
             case MotionEvent.ACTION_UP:
-                Stroke stroke = new Stroke(drawingPath, currentColor);
+                Stroke stroke = new Stroke(drawingPath, currentColor, currentBrushSize);
                 saveStroke(stroke);
 
                 this.mTouchQueue.reset();
