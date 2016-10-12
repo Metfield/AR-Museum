@@ -25,6 +25,8 @@ import com.vuforia.Tool;
 import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
 import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
+import com.vuforia.Vec2F;
+import com.vuforia.Vec3F;
 import com.vuforia.Vuforia;
 
 import java.io.IOException;
@@ -39,8 +41,10 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeObject;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplication3DModel;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleMath;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleUtils;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
 
 
@@ -74,6 +78,10 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     // @Eman
     private Texture mCanvasTexture;
     private RGBColor mCurrentBrushColor;
+
+    private float[] mProjectionInverseMatrix;
+    private float[] mViewInverseMatrix;
+    private float[] mModelViewMatrix;
 
     public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
@@ -182,11 +190,16 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         Point tempPoint = new Point();
         mActivity.getWindowManager().getDefaultDisplay().getSize(tempPoint);
 
+        // Eman
         VIEWPORT_WIDTH = tempPoint.x;
         VIEWPORT_HEIGHT = tempPoint.y;
 
         mTouchQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
         mTouchQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;
+
+        mProjectionInverseMatrix = new float[16];
+        mViewInverseMatrix = new float[16];
+        mModelViewMatrix = new float[16];
     }
     
     public void updateConfiguration()
@@ -237,6 +250,11 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             }
 
             Matrix.multiplyMM(modelViewProjection, 0, projectionMatrix, 0, modelViewMatrix, 0);
+
+            // Eman: Get projection and view inverse
+            Matrix.invertM(this.mProjectionInverseMatrix, 0, projectionMatrix, 0);
+            Matrix.invertM(this.mViewInverseMatrix, 0, modelViewMatrix, 0);
+            this.mModelViewMatrix = modelViewMatrix;
 
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
@@ -298,7 +316,29 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     {
         // Do the whole texture getting here
         if(mTouchQueue.getSize() > 0)
+        {
             mCanvasTexture.updatePixels();
+        }
+
+       /* TouchCoord tc;
+        Vec2F point;// = new Vec2F();
+        Vec3F center = new Vec3F(0.0f, 0.0f, 0.0f);
+        Vec3F normal = new Vec3F(0.0f, 0.0f, 1.0f);
+        Matrix44F projectionInverse, modelView;
+
+        projectionInverse = new Matrix44F();
+        modelView = new Matrix44F();
+
+        projectionInverse.setData(mProjectionInverseMatrix);
+        projectionInverse.setData(mModelViewMatrix);
+
+        while(mTouchQueue.getSize() > 0)
+        {
+            tc = mTouchQueue.pop();
+            point = new Vec2F(tc.getX(), tc.getY());
+
+            SampleMath.projectScreenPointToPlane(projectionInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, point, center, normal);
+        }*/
 
         return mCanvasTexture;
     }
