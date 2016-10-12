@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import ciu196.chalmers.se.armuseum.RGBColor;
+
 /**
  * Created by taich on 10/10/2016.
  */
@@ -15,6 +17,9 @@ public class TouchCoordQueue
     public static int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
     public static int TEXTURE_SIZE;
+
+    private static RGBColor currentColor;
+    private static double currentBrushSize;
 
     public static void push(TouchCoord tc)
     {
@@ -41,5 +46,32 @@ public class TouchCoordQueue
     {
         double scale = (double)(TEXTURE_SIZE) / (VIEWPORT_HEIGHT );
         return (int)(value * scale);
+    }
+
+    public static RGBColor getColor()
+    {
+        return currentColor;
+    }
+
+    public static void setColor(RGBColor color)
+    {
+        currentColor = color;
+    }
+
+    public static double getBrushSize()
+    {
+        return currentBrushSize;
+    }
+
+    public static void setBrushSize(double size)
+    {
+        currentBrushSize = size;
+    }
+
+    public static void reset()
+    {
+        currentBrushSize = 0;
+        currentColor = null;
+        queue.clear();
     }
 }

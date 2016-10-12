@@ -9,7 +9,6 @@ countries.
 
 package ciu196.chalmers.se.armuseum;
 
-import android.graphics.Color;
 import android.graphics.Point;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -77,7 +76,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     // @Eman
     private Texture mCanvasTexture;
-    private RGBColor mCurrentBrushColor;
+//    private RGBColor mCurrentBrushColor;
 
     private float[] mProjectionInverseMatrix;
     private float[] mViewInverseMatrix;
@@ -308,8 +307,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     {
         mTextures = textures;
         mCanvasTexture = textures.get(CANVAS_TEXTURE);
-        mCurrentBrushColor = new RGBColor((byte)20, (byte)20, (byte)20);
-        mCanvasTexture.setBrushColor(mCurrentBrushColor);
+//        mCurrentBrushColor = new RGBColor((byte)20, (byte)20, (byte)20);
+//        mCanvasTexture.setBrushColor(mCurrentBrushColor);
     }
 
     public Texture getCanvasTexture()
@@ -343,30 +342,13 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         return mCanvasTexture;
     }
 
-    public void setBrushColor(byte r, byte g, byte b)
-    {
-        this.mCurrentBrushColor = new RGBColor(r, g, b);
-        this.mCanvasTexture.setBrushColor(this.mCurrentBrushColor);
-    }
+//    public void setBrushColor(byte r, byte g, byte b)
+//    {
+//        this.mCurrentBrushColor = new RGBColor(r, g, b);
+//        this.mCanvasTexture.setBrushColor(this.mCurrentBrushColor);
+//    }
 
-    public class RGBColor
-    {
-        public byte r, g, b;
 
-        RGBColor(byte r, byte g, byte b)
-        {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-        }
-
-        RGBColor(RGBColor newColor)
-        {
-            this.r = newColor.r;
-            this.g = newColor.g;
-            this.b = newColor.b;
-        }
-    }
 }
 
 

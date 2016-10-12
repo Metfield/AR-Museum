@@ -5,7 +5,9 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +17,18 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.vuforia.CameraDevice;
 import com.vuforia.DataSet;
 import com.vuforia.ObjectTracker;
@@ -27,6 +40,7 @@ import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.Vector;
 
@@ -42,6 +56,13 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
 public class MainActivity extends AppCompatActivity implements SampleApplicationControl
 {
     private static final String LOGTAG = "MainActivity";
+
+    // Firebase instance variables
+    private DatabaseReference mFirebaseDatabaseReference;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    public static final String SERIALIZABLE_PATH_CHILD = "serializablepath";
+    public static final String STROKE_PATH_CHILD = "stroke";
 
     SampleApplicationSession vuforiaAppSession;
 
@@ -80,6 +101,11 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     private TouchCoordQueue mTouchQueue;
     public TouchCoord tempTouchCoord;
 
+    // Drawingpath
+    private SerializablePath drawingPath;
+    private RGBColor currentColor;
+    private double currentBrushSize;
+
     // Called when the activity first starts or the user navigates back to an
     // activity.
     @Override
@@ -106,56 +132,29 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         // Eman
         //mTouchQueue = new TouchCoordQueue();
         tempTouchCoord = new TouchCoord(0, 0);
+
+        setupFirebase();
+        login();
+
+        drawingPath = new SerializablePath();
+        currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
     }
 
-    // Process Single Tap event to trigger autofocus
-   /* private class GestureListener extends GestureDetector.SimpleOnGestureListener
-    {
-        // Used to set autofocus one second after a manual focus is triggered
-        private final Handler autofocusHandler = new Handler();
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
 
 
-        @Override
-        public boolean onDown(MotionEvent e)
-        {
-            final int historySize = e.getHistorySize();
-            int p = 0;
-
-            Log.e("blah", "SUCK IT!! hISTORY size: " + historySize);
-
-            for (int h = 0; h < historySize; h++)
-            {
-                Log.e("BLah!", "TouchCoords: (" + e.getHistoricalX(p, h) + " , " + e.getHistoricalY(p, h) + " )");
-            }
-
-
-
-
-                return true;
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
         }
-
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e)
-        {
-            // Generates a Handler to trigger autofocus
-            // after 1 second
-            autofocusHandler.postDelayed(new Runnable()
-            {
-                public void run()
-                {
-                    boolean result = CameraDevice.getInstance().setFocusMode(
-                            CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO);
-
-                    if (!result)
-                        Log.e("SingleTapUp", "Unable to trigger focus");
-                }
-            }, 1000L);
-
-            return true;
-        }
-    }*/
-
+    }
 
     // We want to load specific textures from the APK, which we will later use
     // for rendering.
@@ -343,10 +342,9 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
             String name = "Current Dataset : " + trackable.getName();
             trackable.setUserData(name);
-            Log.d(LOGTAG, "UserData:Set the following user data "
-                    + (String) trackable.getUserData());
+//            Log.d(LOGTAG, "UserData:Set the following user data "
+//                    + (String) trackable.getUserData());
         }
-
         return true;
     }
 
@@ -544,7 +542,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         return result;
     }
 
-
     @Override
     public boolean doDeinitTrackers()
     {
@@ -557,8 +554,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         return result;
     }
 
-
-
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
@@ -566,22 +561,31 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         int action = event.getActionMasked();
         int pointerId = event.getPointerId(index);
 
+        int xPos = (int)event.getX();
+        int yPos = (int)event.getY();
 
         switch(action)
         {
             case MotionEvent.ACTION_DOWN:
-
-                tempTouchCoord.set((int)event.getX(), (int)event.getY());
+                tempTouchCoord.set(xPos, yPos);
                 this.mTouchQueue.push(tempTouchCoord);
+                this.mTouchQueue.setColor(currentColor);
+                this.mTouchQueue.setBrushSize(currentBrushSize);
 
+                drawingPath.addPoint(new Point(xPos, yPos));
                 break;
             case MotionEvent.ACTION_MOVE:
-
-                tempTouchCoord.set((int)event.getX(), (int)event.getY());
+                tempTouchCoord.set(xPos, yPos);
                 this.mTouchQueue.push(tempTouchCoord);
 
+                drawingPath.addPoint(new Point(xPos, yPos));
                 break;
             case MotionEvent.ACTION_UP:
+                Stroke stroke = new Stroke(drawingPath, currentColor, currentBrushSize);
+                saveStroke(stroke);
+
+                this.mTouchQueue.reset();
+                drawingPath.reset();
                 break;
             case MotionEvent.ACTION_CANCEL:
                 break;
@@ -599,4 +603,99 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     {
         return this.mTouchQueue;
     }
+
+    private void saveDrawingPath(SerializablePath drawingPath) {
+        mFirebaseDatabaseReference.child(SERIALIZABLE_PATH_CHILD).push().setValue(drawingPath);
+    }
+
+    private void saveStroke(Stroke stroke) {
+        mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
+    }
+
+    private void setupFirebase() {
+        // Authentication
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(LOGTAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(LOGTAG, "onAuthStateChanged:signed_out");
+                }
+                // ...
+            }
+        };
+
+        // Database
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+    }
+
+    private void login() {
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(LOGTAG, "signInAnonymously:onComplete:" + task.isSuccessful());
+
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            Log.w(LOGTAG, "signInAnonymously", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
+                        // ...
+                    }
+                });
+
+    }
+
+    ValueEventListener drawingDatabaseListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
+                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
+
+                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
+                while (iterator.hasNext()) {
+                    Stroke stroke = iterator.next().getValue(Stroke.class);
+
+//                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
+
+                    for (Point point: stroke.getDrawingPath().getPoints()) {
+                        tempTouchCoord.set(point.x, point.y);
+                        mTouchQueue.push(tempTouchCoord);
+//                        Log.v(LOGTAG, point.x + " " + point.y);
+                    }
+                }
+            }
+
+            if (dataSnapshot.child(SERIALIZABLE_PATH_CHILD).exists()) {
+                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
+
+                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
+                while (iterator.hasNext()) {
+                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
+
+                    for (Point point: path.getPoints()) {
+                        tempTouchCoord.set(point.x, point.y);
+                        mTouchQueue.push(tempTouchCoord);
+//                        Log.v(LOGTAG, point.x + " " + point.y);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.w(LOGTAG, databaseError.toException());
+        }
+    };
 }
