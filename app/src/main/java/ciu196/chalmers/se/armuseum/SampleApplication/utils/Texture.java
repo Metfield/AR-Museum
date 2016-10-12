@@ -22,6 +22,7 @@ import java.nio.ByteOrder;
 
 import ciu196.chalmers.se.armuseum.MainActivity;
 import ciu196.chalmers.se.armuseum.PaintRenderer;
+import ciu196.chalmers.se.armuseum.RGBColor;
 
 
 // Support class for the Vuforia samples applications.
@@ -44,7 +45,8 @@ public class Texture
     public int mBufferSize;
     private TouchCoordQueue mTouchQueue;
 
-    private  PaintRenderer.RGBColor mBrushColor;
+    private RGBColor mBrushColor;
+    private float mBrushSize;
 
     /* Factory function to load a texture from the APK. */
     public static Texture loadTextureFromApk(String fileName,
@@ -146,6 +148,10 @@ public class Texture
         int offset;
         int memPitch;
 
+        setBrushColor(mTouchQueue.getColor());
+        // TODO: Use brush size
+        mBrushSize = mTouchQueue.getBrushSize();
+
         while(mTouchQueue.getSize() > 0)
         {
             tc = mTouchQueue.pop();
@@ -169,9 +175,9 @@ public class Texture
             memPitch = mWidth * mChannels;
             offset = u + (v * memPitch);
 
-            mData.put(offset, mBrushColor.r);
-            mData.put(offset + 1, mBrushColor.g);
-            mData.put(offset + 2, mBrushColor.b);
+            mData.put(offset, (byte)mBrushColor.getR());
+            mData.put(offset + 1, (byte)mBrushColor.getG());
+            mData.put(offset + 2, (byte)mBrushColor.getB());
             mData.put(offset + 3, (byte)255);
         }
 
@@ -184,7 +190,7 @@ public class Texture
         }*/
     }
 
-    public void setBrushColor(PaintRenderer.RGBColor newColor)
+    private void setBrushColor(RGBColor newColor)
     {
         this.mBrushColor = newColor;
     }
