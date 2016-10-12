@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     // Drawingpath
     private SerializablePath drawingPath;
     private RGBColor currentColor;
+    private float currentBrushSize;
 
     // Called when the activity first starts or the user navigates back to an
     // activity.
@@ -139,11 +140,13 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
     }
+
 
     @Override
     public void onStop() {
@@ -342,7 +345,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 //            Log.d(LOGTAG, "UserData:Set the following user data "
 //                    + (String) trackable.getUserData());
         }
-
         return true;
     }
 
@@ -540,7 +542,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         return result;
     }
 
-
     @Override
     public boolean doDeinitTrackers()
     {
@@ -552,8 +553,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
         return result;
     }
-
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event)
@@ -570,6 +569,8 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
             case MotionEvent.ACTION_DOWN:
                 tempTouchCoord.set(xPos, yPos);
                 this.mTouchQueue.push(tempTouchCoord);
+                this.mTouchQueue.setColor(currentColor);
+                this.mTouchQueue.setBrushSize(currentBrushSize);
 
                 drawingPath.addPoint(new Point(xPos, yPos));
                 break;
@@ -580,10 +581,10 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                 drawingPath.addPoint(new Point(xPos, yPos));
                 break;
             case MotionEvent.ACTION_UP:
-
                 Stroke stroke = new Stroke(drawingPath, currentColor);
                 saveStroke(stroke);
-//                saveDrawingPath(drawingPath);
+
+                this.mTouchQueue.reset();
                 drawingPath.reset();
                 break;
             case MotionEvent.ACTION_CANCEL:

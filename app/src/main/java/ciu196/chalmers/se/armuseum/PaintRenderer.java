@@ -72,7 +72,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     // @Eman
     private Texture mCanvasTexture;
-    private RGBColor mCurrentBrushColor;
+//    private RGBColor mCurrentBrushColor;
 
     public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
@@ -289,8 +289,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     {
         mTextures = textures;
         mCanvasTexture = textures.get(CANVAS_TEXTURE);
-        mCurrentBrushColor = new RGBColor((byte)20, (byte)20, (byte)20);
-        mCanvasTexture.setBrushColor(mCurrentBrushColor);
+//        mCurrentBrushColor = new RGBColor((byte)20, (byte)20, (byte)20);
+//        mCanvasTexture.setBrushColor(mCurrentBrushColor);
     }
 
     public Texture getCanvasTexture()
@@ -302,11 +302,11 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         return mCanvasTexture;
     }
 
-    public void setBrushColor(byte r, byte g, byte b)
-    {
-        this.mCurrentBrushColor = new RGBColor(r, g, b);
-        this.mCanvasTexture.setBrushColor(this.mCurrentBrushColor);
-    }
+//    public void setBrushColor(byte r, byte g, byte b)
+//    {
+//        this.mCurrentBrushColor = new RGBColor(r, g, b);
+//        this.mCanvasTexture.setBrushColor(this.mCurrentBrushColor);
+//    }
 
 
 }
