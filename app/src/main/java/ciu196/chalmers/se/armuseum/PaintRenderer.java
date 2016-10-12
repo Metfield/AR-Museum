@@ -9,7 +9,6 @@ countries.
 
 package ciu196.chalmers.se.armuseum;
 
-import android.graphics.Color;
 import android.graphics.Point;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -309,24 +308,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         this.mCanvasTexture.setBrushColor(this.mCurrentBrushColor);
     }
 
-    public class RGBColor
-    {
-        public byte r, g, b;
 
-        RGBColor(byte r, byte g, byte b)
-        {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-        }
-
-        RGBColor(RGBColor newColor)
-        {
-            this.r = newColor.r;
-            this.g = newColor.g;
-            this.b = newColor.b;
-        }
-    }
 }
 
 

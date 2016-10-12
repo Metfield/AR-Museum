@@ -22,6 +22,7 @@ import java.nio.ByteOrder;
 
 import ciu196.chalmers.se.armuseum.MainActivity;
 import ciu196.chalmers.se.armuseum.PaintRenderer;
+import ciu196.chalmers.se.armuseum.RGBColor;
 
 
 // Support class for the Vuforia samples applications.
@@ -44,7 +45,7 @@ public class Texture
     public int mBufferSize;
     private TouchCoordQueue mTouchQueue;
 
-    private  PaintRenderer.RGBColor mBrushColor;
+    private RGBColor mBrushColor;
 
     /* Factory function to load a texture from the APK. */
     public static Texture loadTextureFromApk(String fileName,
@@ -184,7 +185,7 @@ public class Texture
         }*/
     }
 
-    public void setBrushColor(PaintRenderer.RGBColor newColor)
+    public void setBrushColor(RGBColor newColor)
     {
         this.mBrushColor = newColor;
     }
