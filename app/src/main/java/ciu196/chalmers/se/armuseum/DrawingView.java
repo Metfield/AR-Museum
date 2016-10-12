@@ -154,8 +154,9 @@ public class DrawingView extends View {
 
             SerializablePath savedDrawPath = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getValue(SerializablePath.class);
 
-            Paint savedPaint = drawPaint; // For now
-            drawCanvas.drawPath(savedDrawPath, savedPaint);
+
+//            Paint savedPaint = drawPaint; // For now
+//            drawCanvas.drawPath(savedDrawPath, savedPaint);
         }
 
         @Override
