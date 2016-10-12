@@ -3,8 +3,6 @@ package ciu196.chalmers.se.armuseum;
 import android.graphics.Path;
 import android.graphics.Point;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;

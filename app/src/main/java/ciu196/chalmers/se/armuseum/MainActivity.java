@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     public static final String SERIALIZABLE_PATH_CHILD = "serializablepath";
+    public static final String STROKE_PATH_CHILD = "stroke";
 
     SampleApplicationSession vuforiaAppSession;
 
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
     // Drawingpath
     private SerializablePath drawingPath;
+    private RGBColor currentColor;
 
     // Called when the activity first starts or the user navigates back to an
     // activity.
@@ -134,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         login();
 
         drawingPath = new SerializablePath();
+        currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
     }
 
     @Override
@@ -336,8 +339,8 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
             String name = "Current Dataset : " + trackable.getName();
             trackable.setUserData(name);
-            Log.d(LOGTAG, "UserData:Set the following user data "
-                    + (String) trackable.getUserData());
+//            Log.d(LOGTAG, "UserData:Set the following user data "
+//                    + (String) trackable.getUserData());
         }
 
         return true;
@@ -577,7 +580,10 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                 drawingPath.addPoint(new Point(xPos, yPos));
                 break;
             case MotionEvent.ACTION_UP:
-                saveDrawingPath(drawingPath);
+
+                Stroke stroke = new Stroke(drawingPath, currentColor);
+                saveStroke(stroke);
+//                saveDrawingPath(drawingPath);
                 drawingPath.reset();
                 break;
             case MotionEvent.ACTION_CANCEL:
@@ -598,10 +604,11 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     }
 
     private void saveDrawingPath(SerializablePath drawingPath) {
-//        DrawMotion drawMotion = new DrawMotion(drawPath, drawPaint);
-//        mFirebaseDatabaseReference.child(DRAW_MOTION_CHILD).push().setValue(drawMotion);
-
         mFirebaseDatabaseReference.child(SERIALIZABLE_PATH_CHILD).push().setValue(drawingPath);
+    }
+
+    private void saveStroke(Stroke stroke) {
+        mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
     }
 
     private void setupFirebase() {
@@ -652,6 +659,23 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     ValueEventListener drawingDatabaseListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
+                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
+
+                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
+                while (iterator.hasNext()) {
+                    Stroke stroke = iterator.next().getValue(Stroke.class);
+
+//                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
+
+                    for (Point point: stroke.getDrawingPath().getPoints()) {
+                        tempTouchCoord.set(point.x, point.y);
+                        mTouchQueue.push(tempTouchCoord);
+//                        Log.v(LOGTAG, point.x + " " + point.y);
+                    }
+                }
+            }
+
             if (dataSnapshot.child(SERIALIZABLE_PATH_CHILD).exists()) {
                 Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
 

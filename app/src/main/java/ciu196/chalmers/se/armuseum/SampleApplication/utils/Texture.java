@@ -170,9 +170,9 @@ public class Texture
             memPitch = mWidth * mChannels;
             offset = u + (v * memPitch);
 
-            mData.put(offset, mBrushColor.r);
-            mData.put(offset + 1, mBrushColor.g);
-            mData.put(offset + 2, mBrushColor.b);
+            mData.put(offset, (byte)mBrushColor.getR());
+            mData.put(offset + 1, (byte)mBrushColor.getG());
+            mData.put(offset + 2, (byte)mBrushColor.getB());
             mData.put(offset + 3, (byte)255);
         }
 

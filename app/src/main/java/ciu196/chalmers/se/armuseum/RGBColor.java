@@ -7,9 +7,9 @@ import java.io.Serializable;
  */
 public class RGBColor implements Serializable
 {
-    public byte r, g, b;
+    private int r, g, b;
 
-    RGBColor(byte r, byte g, byte b)
+    RGBColor(int r, int g, int b)
     {
         this.r = r;
         this.g = g;
@@ -22,4 +22,11 @@ public class RGBColor implements Serializable
         this.g = newColor.g;
         this.b = newColor.b;
     }
+
+    // DB constructor
+    public RGBColor() {}
+    //DB getters
+    public int getR() {return r;}
+    public int getG() {return g;}
+    public int getB() {return b;}
 }
