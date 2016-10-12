@@ -9,6 +9,8 @@ countries.
 
 package ciu196.chalmers.se.armuseum;
 
+import android.graphics.Color;
+import android.graphics.Point;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -39,6 +41,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplication3DModel;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleUtils;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
 
 
 // The renderer class for the ImageTargets sample. 
@@ -70,6 +73,11 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     // @Eman
     private Texture mCanvasTexture;
+    private RGBColor mCurrentBrushColor;
+
+    public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
+
+    private TouchCoordQueue mTouchQueue;
 
     private static final float OBJECT_SCALE_FLOAT = 200.0f;
 
@@ -170,7 +178,15 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             // Hide the Loading Dialog
             mActivity.loadingDialogHandler.sendEmptyMessage(LoadingDialogHandler.HIDE_LOADING_DIALOG);
         }
-        
+
+        Point tempPoint = new Point();
+        mActivity.getWindowManager().getDefaultDisplay().getSize(tempPoint);
+
+        VIEWPORT_WIDTH = tempPoint.x;
+        VIEWPORT_HEIGHT = tempPoint.y;
+
+        mTouchQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
+        mTouchQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;
     }
     
     public void updateConfiguration()
@@ -222,11 +238,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
             Matrix.multiplyMM(modelViewProjection, 0, projectionMatrix, 0, modelViewMatrix, 0);
 
-
-            // Add code for touches here
-
-
-
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
 
@@ -253,6 +264,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 // disable the enabled arrays
                 GLES20.glDisableVertexAttribArray(vertexHandle);
                 GLES20.glDisableVertexAttribArray(textureCoordHandle);
+
+                // Also set TouchCoordQueue texture size
+                mTouchQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
             }
             else
             {
@@ -276,16 +290,43 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     {
         mTextures = textures;
         mCanvasTexture = textures.get(CANVAS_TEXTURE);
+        mCurrentBrushColor = new RGBColor((byte)20, (byte)20, (byte)20);
+        mCanvasTexture.setBrushColor(mCurrentBrushColor);
     }
 
     public Texture getCanvasTexture()
     {
         // Do the whole texture getting here
-
-        // while touching
-        mCanvasTexture.updatePixels();
+        if(mTouchQueue.getSize() > 0)
+            mCanvasTexture.updatePixels();
 
         return mCanvasTexture;
     }
-    
+
+    public void setBrushColor(byte r, byte g, byte b)
+    {
+        this.mCurrentBrushColor = new RGBColor(r, g, b);
+        this.mCanvasTexture.setBrushColor(this.mCurrentBrushColor);
+    }
+
+    public class RGBColor
+    {
+        public byte r, g, b;
+
+        RGBColor(byte r, byte g, byte b)
+        {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+        }
+
+        RGBColor(RGBColor newColor)
+        {
+            this.r = newColor.r;
+            this.g = newColor.g;
+            this.b = newColor.b;
+        }
+    }
 }
+
+

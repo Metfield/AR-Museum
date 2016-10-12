@@ -20,6 +20,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import ciu196.chalmers.se.armuseum.MainActivity;
+import ciu196.chalmers.se.armuseum.PaintRenderer;
+
 
 // Support class for the Vuforia samples applications.
 // Exposes functionality for loading a texture from the APK.
@@ -37,7 +40,12 @@ public class Texture
     public ByteBuffer mTempBuffer;
     public int mNumPixels;
     public byte[] mDataBytes;
-    
+
+    public int mBufferSize;
+    private TouchCoordQueue mTouchQueue;
+
+    private  PaintRenderer.RGBColor mBrushColor;
+
     /* Factory function to load a texture from the APK. */
     public static Texture loadTextureFromApk(String fileName,
         AssetManager assets)
@@ -100,8 +108,9 @@ public class Texture
         for (int r = 0; r < texture.mHeight; r++)
         {
             texture.mData.put(dataBytes, rowSize * (texture.mHeight - 1 - r), rowSize);
-        }
+    }
 
+        texture.mBufferSize = texture.mData.position();
         texture.mData.rewind();
         
         // Cleans variables
@@ -114,11 +123,11 @@ public class Texture
 
     public void updatePixels()
     {
-        for (int p = 0; p < mNumPixels; ++p)
+       /* for (int p = 0; p < mNumPixels; ++p)
         {
-            mDataBytes[p * 4] = (byte) (128 >>> 16); // R
-            mDataBytes[p * 4 + 1] = (byte) (255 >>> 8); // G
-            mDataBytes[p * 4 + 2] = (byte) 120; // B
+            mDataBytes[p * 4] = (byte) (this.mBrushColor.r >>> 16); // R
+            mDataBytes[p * 4 + 1] = (byte) (this.mBrushColor.g >>> 8); // G
+            mDataBytes[p * 4 + 2] = (byte) this.mBrushColor.b; // B
             mDataBytes[p * 4 + 3] = (byte) (255 >>> 24); // A
         }
 
@@ -130,6 +139,53 @@ public class Texture
         }
 
         mData = mTempBuffer;
-        mTempBuffer.rewind();
+        mTempBuffer.rewind();*/
+
+        TouchCoord tc;
+        int u, v;
+        int offset;
+        int memPitch;
+
+        while(mTouchQueue.getSize() > 0)
+        {
+            tc = mTouchQueue.pop();
+
+            if(tc == null)
+            {
+                return;
+            }
+
+            // Get u,v coordinates
+            u = tc.getU();
+            v = mHeight - tc.getV();
+
+//            Log.e("blah","Raw v: " + v);
+
+            // Clamp v value to [0, tex_1D_size-1]
+            v = Math.max(0, Math.min(mHeight - 1, v));
+
+//            Log.e("blah", "x: " + tc.getX() +" y: " + tc.getY() + "   U: " + u + " v: " + v);
+
+            memPitch = mWidth * mChannels;
+            offset = u + (v * memPitch);
+
+            mData.put(offset, mBrushColor.r);
+            mData.put(offset + 1, mBrushColor.g);
+            mData.put(offset + 2, mBrushColor.b);
+            mData.put(offset + 3, (byte)255);
+        }
+
+/*        for(int i = 0; i < mBufferSize-3; i+=4)
+        {
+            mData.put(i, (byte)128);
+            mData.put(i+1, (byte)255);
+            mData.put(i+2, (byte)64);
+            mData.put(i+3, (byte)255);
+        }*/
+    }
+
+    public void setBrushColor(PaintRenderer.RGBColor newColor)
+    {
+        this.mBrushColor = newColor;
     }
 }
