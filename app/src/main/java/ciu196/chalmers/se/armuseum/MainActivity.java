@@ -40,6 +40,7 @@ import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.Vector;
 
@@ -651,25 +652,20 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     ValueEventListener drawingDatabaseListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-//            DrawMotion drawMotion = dataSnapshot.getValue(DrawMotion.class);
-//            DrawMotion drawMotion = dataSnapshot.child(DRAW_MOTION_CHILD).getValue(DrawMotion.class);
-//            String key = dataSnapshot.getKey();
-//            DataSnapshot child = dataSnapshot.child(DRAW_MOTION_CHILD);
-//            String childKey = child.getKey();
-//            DataSnapshot grandChild = child.child(SERIALIZABLE_PATH_CHILD);
-//            String grandchildKey = grandChild.getKey();
-//            SerializablePath path = grandChild.getValue(SerializablePath.class);
-//
-//            Path savedDrawPath = drawMotion.getDrawPath();
+            if (dataSnapshot.child(SERIALIZABLE_PATH_CHILD).exists()) {
+                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
 
-            SerializablePath savedDrawPath = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getValue(SerializablePath.class);
-            for (Point point: savedDrawPath.getPoints()) {
-                tempTouchCoord.set(point.x, point.y);
-                mTouchQueue.push(tempTouchCoord);
+                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
+                while (iterator.hasNext()) {
+                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
+
+                    for (Point point: path.getPoints()) {
+                        tempTouchCoord.set(point.x, point.y);
+                        mTouchQueue.push(tempTouchCoord);
+//                        Log.v(LOGTAG, point.x + " " + point.y);
+                    }
+                }
             }
-
-//            Paint savedPaint = drawPaint; // For now
-//            drawCanvas.drawPath(savedDrawPath, savedPaint);
         }
 
         @Override
