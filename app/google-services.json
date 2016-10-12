@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "136013674793",
+    "firebase_url": "https://armuseum-16e00.firebaseio.com",
+    "project_id": "armuseum-16e00",
+    "storage_bucket": "armuseum-16e00.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:136013674793:android:a6b50cd7a6164bb7",
+        "android_client_info": {
+          "package_name": "ciu196.chalmers.se.armuseum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "136013674793-o1f6enpt87tm21k6f022kujq0696psro.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDowvsJ4mTpfeyZpFlGrtQY8njR-sEoy6Y"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
