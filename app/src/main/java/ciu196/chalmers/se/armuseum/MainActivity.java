@@ -670,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
-                Log.v(LOGTAG, "Event from db");
+//                Log.v(LOGTAG, "Event from db");
                 Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
@@ -686,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                         tempTouchCoord.set(point.x, point.y);
                         mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
                        // mTouchQueue.push(tempTouchCoord);
-                        Log.v(LOGTAG, point.x + " " + point.y);
+//                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
             }

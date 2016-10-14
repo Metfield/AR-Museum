@@ -391,10 +391,10 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         model_coords[2] /= length;
         model_coords[3] /= length;
 
-        Log.e("cock", "Transformed: " + model_coords[0]
-                + " " + model_coords[1]
-                + " " + model_coords[2]
-                + " " + model_coords[3]);
+//        Log.e("cock", "Transformed: " + model_coords[0]
+//                + " " + model_coords[1]
+//                + " " + model_coords[2]
+//                + " " + model_coords[3]);
 
 
 
