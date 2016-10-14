@@ -641,7 +641,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
         Toast.makeText(MainActivity.this, "Starting to listen to db",
                 Toast.LENGTH_SHORT).show();
-        Log.e(LOGTAG, "Listening to db");
+        Log.v(LOGTAG, "Listening to db");
 //        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
     }
 
@@ -672,12 +672,13 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         public void onDataChange(DataSnapshot dataSnapshot) {
             if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
                 Log.v(LOGTAG, "Event from db");
-                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
+                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
                 while (iterator.hasNext()) {
-                    Stroke stroke = iterator.next().getValue(Stroke.class);
 
+                    Stroke stroke = iterator.next().getValue(Stroke.class);
+//                    Log.v(LOGTAG, "Stroke " + stroke);
 //                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
 
                     for (Point point: stroke.getDrawingPath().getPoints()) {
