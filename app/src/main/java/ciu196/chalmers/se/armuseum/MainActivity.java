@@ -688,7 +688,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                         tempTouchCoord.set(point.x, point.y);
                         mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
                        // mTouchQueue.push(tempTouchCoord);
-                        Log.v(LOGTAG, point.x + " " + point.y);
+//                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
             }
