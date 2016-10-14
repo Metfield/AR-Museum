@@ -289,8 +289,11 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     {
         mTextures = textures;
         mCanvasTexture = textures.get(CANVAS_TEXTURE);
+
 //        mCurrentBrushColor = new RGBColor((byte)20, (byte)20, (byte)20);
 //        mCanvasTexture.setBrushColor(mCurrentBrushColor);
+
+        mActivity.onDrawingSurfaceLoaded();
     }
 
     public Texture getCanvasTexture()

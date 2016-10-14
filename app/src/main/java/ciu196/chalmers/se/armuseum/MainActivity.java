@@ -304,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         addContentView(mUILayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+
     }
 
 
@@ -632,7 +633,14 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
         // Database
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+    }
+
+    private void startListeningToDrawingEventsFromDatabase() {
+        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
+        Toast.makeText(MainActivity.this, "Starting to listen to db",
+                Toast.LENGTH_SHORT).show();
+        Log.e(LOGTAG, "Listening to db");
+//        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
     }
 
     private void login() {
@@ -698,4 +706,13 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
             Log.w(LOGTAG, databaseError.toException());
         }
     };
+
+    protected void onDrawingSurfaceLoaded() {
+        dropDatabase();
+        startListeningToDrawingEventsFromDatabase();
+    }
+
+    private void dropDatabase() {
+        mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).removeValue();
+    }
 }
