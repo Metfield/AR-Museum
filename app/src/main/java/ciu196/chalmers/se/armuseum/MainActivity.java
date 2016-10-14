@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    public static final String SERIALIZABLE_PATH_CHILD = "serializablePath";
     public static final String STROKE_PATH_CHILD = "stroke";
 
     SampleApplicationSession vuforiaAppSession;
@@ -341,8 +340,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
             String name = "Current Dataset : " + trackable.getName();
             trackable.setUserData(name);
-//            Log.d(LOGTAG, "UserData:Set the following user data "
-//                    + (String) trackable.getUserData());
         }
         return true;
     }
@@ -416,10 +413,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                 mContAutofocus = true;
             else
                 Log.e(LOGTAG, "Unable to enable continuous autofocus");
-
-//            mSampleAppMenu = new SampleAppMenu(this, this, "Image Targets", mGlView, mUILayout, null);
-//            setSampleAppMenuSettings();
-
         } else
         {
             Log.e(LOGTAG, exception.getString());
@@ -603,10 +596,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         return this.mTouchQueue;
     }
 
-//    private void saveDrawingPath(SerializablePath drawingPath) {
-//        mFirebaseDatabaseReference.child(SERIALIZABLE_PATH_CHILD).push().setValue(drawingPath);
-//    }
-
     private void saveStroke(Stroke stroke) {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
     }
@@ -640,7 +629,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         Toast.makeText(MainActivity.this, "Starting to listen to db",
                 Toast.LENGTH_SHORT).show();
         Log.v(LOGTAG, "Listening to db");
-//        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+
     }
 
     private void login() {
@@ -676,36 +665,16 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                 while (iterator.hasNext()) {
 
                     Stroke stroke = iterator.next().getValue(Stroke.class);
-//                    Log.v(LOGTAG, "Stroke " + stroke);
-//                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
                     RGBColor color = stroke.getColor();
                     double brushSize = stroke.getBrushSize();
 
                     for (Point point: stroke.getSerializablePath().getPoints()) {
                         tempTouchCoord.set(point.x, point.y);
                         mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
-                       // mTouchQueue.push(tempTouchCoord);
 //                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
             }
-
-           /* if (dataSnapshot.child(SERIALIZABLE_PATH_CHILD).exists())
-            {
-                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
-
-                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-                while (iterator.hasNext()) {
-                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
-
-                    for (Point point: path.getPoints()) {
-                        tempTouchCoord.set(point.x, point.y);
-                        //mTouchQueue.push(tempTouchCoord);
-                        mRenderer.addTouchToQueue(tempTouchCoord);
-//                        Log.v(LOGTAG, point.x + " " + point.y);
-                    }
-                }
-            }*/
         }
 
         @Override
