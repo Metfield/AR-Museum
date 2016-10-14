@@ -41,7 +41,6 @@ import com.vuforia.Vuforia;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Queue;
 import java.util.Vector;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationControl;
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    public static final String SERIALIZABLE_PATH_CHILD = "serializablepath";
+    public static final String SERIALIZABLE_PATH_CHILD = "serializablePath";
     public static final String STROKE_PATH_CHILD = "stroke";
 
     SampleApplicationSession vuforiaAppSession;
@@ -133,11 +132,12 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         //mTouchQueue = new TouchCoordQueue();
         tempTouchCoord = new TouchCoord(0, 0);
 
-        setupFirebase();
-        login();
-
         drawingPath = new SerializablePath();
         currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
+        currentBrushSize = 20;
+
+        setupFirebase();
+        login();
     }
 
 
@@ -210,8 +210,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
     // Called when the system is about to start resuming a previous activity.
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         Log.d(LOGTAG, "onPause");
         super.onPause();
 
@@ -506,8 +505,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                     LOGTAG,
                     "Tracker not initialized. Tracker already initialized or the camera is already started");
             result = false;
-        } else
-        {
+        } else {
             Log.i(LOGTAG, "Tracker successfully initialized");
         }
         return result;
@@ -606,9 +604,9 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         return this.mTouchQueue;
     }
 
-    private void saveDrawingPath(SerializablePath drawingPath) {
-        mFirebaseDatabaseReference.child(SERIALIZABLE_PATH_CHILD).push().setValue(drawingPath);
-    }
+//    private void saveDrawingPath(SerializablePath drawingPath) {
+//        mFirebaseDatabaseReference.child(SERIALIZABLE_PATH_CHILD).push().setValue(drawingPath);
+//    }
 
     private void saveStroke(Stroke stroke) {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
@@ -684,11 +682,11 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                     RGBColor color = stroke.getColor();
                     double brushSize = stroke.getBrushSize();
 
-                    for (Point point: stroke.getDrawingPath().getPoints()) {
+                    for (Point point: stroke.getSerializablePath().getPoints()) {
                         tempTouchCoord.set(point.x, point.y);
                         mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
                        // mTouchQueue.push(tempTouchCoord);
-//                        Log.v(LOGTAG, point.x + " " + point.y);
+                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
             }

@@ -9,14 +9,14 @@ public class RGBColor implements Serializable
 {
     private int r, g, b;
 
-    RGBColor(int r, int g, int b)
+    public RGBColor(int r, int g, int b)
     {
         this.r = r;
         this.g = g;
         this.b = b;
     }
 
-    RGBColor(RGBColor newColor)
+    public RGBColor(RGBColor newColor)
     {
         this.r = newColor.r;
         this.g = newColor.g;

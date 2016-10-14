@@ -45,8 +45,11 @@ public class Texture
     public int mBufferSize;
     private TouchCoordQueue mTouchQueue;
 
-    private RGBColor mBrushColor;
-    private double mBrushSize;
+
+    private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
+    private RGBColor mBrushColor = DEFAULT_COLOR;
+    private static final double DEFAULT_BRUSH_SIZE = 20;
+    private double mBrushSize= DEFAULT_BRUSH_SIZE;
 
     /* Factory function to load a texture from the APK. */
     public static Texture loadTextureFromApk(String fileName,
