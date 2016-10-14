@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     SampleApplicationSession vuforiaAppSession;
 
     private DataSet mCurrentDataset;
-    private int mCurrentDatasetSelectionIndex = 0;
+    private int mCurrentDatasetSelectionIndex = 1;
     private int mStartDatasetsIndex = 0;
     private int mDatasetsNumber = 0;
     private ArrayList<String> mDatasetStrings = new ArrayList<String>();
@@ -117,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
         startLoadingAnimation();
         mDatasetStrings.add("StonesAndChips.xml");
-        mDatasetStrings.add("Tarmac.xml");
         mDatasetStrings.add("ARMuseumDataBase.xml");
 
         vuforiaAppSession.initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

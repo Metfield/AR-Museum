@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
   <Tracking>
-    <ImageTarget name="stones" size="0.500000 0.350000" />
-    <ImageTarget name="oil-paint-on-palette-with-brushes" size="0.200000 0.147000" />
-    <ImageTarget name="small-easel-with-canvas" size="0.200000 0.132396" />
+    <ImageTarget name="stones" size="247 173" />
+    <ImageTarget name="oil-paint-on-palette-with-brushes" size="200 147" />
+    <ImageTarget name="small-easel-with-canvas" size="200 132" />
   </Tracking>
 </QCARConfig>
