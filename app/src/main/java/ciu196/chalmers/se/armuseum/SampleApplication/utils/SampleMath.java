@@ -391,7 +391,7 @@ public class SampleMath
     }
     
     
-    private static void projectScreenPointToPlane(Matrix44F inverseProjMatrix,
+    public static void projectScreenPointToPlane(Matrix44F inverseProjMatrix,
         Matrix44F modelViewMatrix, float screenWidth, float screenHeight,
         Vec2F point, Vec3F planeCenter, Vec3F planeNormal)
     {
@@ -433,9 +433,13 @@ public class SampleMath
             farWorld.getData()[2]);
         mIntersection = linePlaneIntersection(mLineStart, mLineEnd,
             planeCenter, planeNormal);
-        
+
+        Log.e("blah", "LineStart: " + mLineStart.getData()[0] + " " +mLineStart.getData()[1] + " " + mLineStart.getData()[2]);
+
         if (mIntersection == null)
             Log.e(LOGTAG, "No intersection with the plane");
+        else
+            Log.e(LOGTAG, "OMG COLLISION!");
     }
     
     

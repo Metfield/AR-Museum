@@ -110,7 +110,7 @@ public class Texture
         for (int r = 0; r < texture.mHeight; r++)
         {
             texture.mData.put(dataBytes, rowSize * (texture.mHeight - 1 - r), rowSize);
-    }
+        }
 
         texture.mBufferSize = texture.mData.position();
         texture.mData.rewind();
@@ -162,7 +162,7 @@ public class Texture
             }
 
             // Get u,v coordinates
-            u = tc.getU();
+            u = tc.getU() * mChannels;
             v = mHeight - tc.getV();
 
 //            Log.e("blah","Raw v: " + v);

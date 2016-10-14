@@ -1,5 +1,11 @@
 package ciu196.chalmers.se.armuseum.SampleApplication.utils;
 
+import android.opengl.Matrix;
+import android.os.Debug;
+import android.util.Log;
+
+import ciu196.chalmers.se.armuseum.PaintRenderer;
+
 /**
  * Created by taich on 10/10/2016.
  */
@@ -10,11 +16,7 @@ public class TouchCoord
 
     public TouchCoord(int x, int y)
     {
-        this.x = x;
-        this.y = y;
-
-        this.u =  TouchCoordQueue.convertX2U(x) - 1;
-        this.v =  TouchCoordQueue.convertY2V(y) - 1;
+        set(x, y);
     }
 
     public int getX()

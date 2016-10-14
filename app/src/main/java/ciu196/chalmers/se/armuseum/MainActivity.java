@@ -569,17 +569,17 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         {
             case MotionEvent.ACTION_DOWN:
                 tempTouchCoord.set(xPos, yPos);
-                this.mTouchQueue.push(tempTouchCoord);
-                this.mTouchQueue.setColor(currentColor);
-                this.mTouchQueue.setBrushSize(currentBrushSize);
+                mRenderer.addTouchToQueue(tempTouchCoord, currentColor, currentBrushSize);
 
                 drawingPath.addPoint(new Point(xPos, yPos));
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 tempTouchCoord.set(xPos, yPos);
-                this.mTouchQueue.push(tempTouchCoord);
+                mRenderer.addTouchToQueue(tempTouchCoord);
 
                 drawingPath.addPoint(new Point(xPos, yPos));
+
                 break;
             case MotionEvent.ACTION_UP:
                 Stroke stroke = new Stroke(drawingPath, currentColor, currentBrushSize);
@@ -587,6 +587,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
                 this.mTouchQueue.reset();
                 drawingPath.reset();
+
                 break;
             case MotionEvent.ACTION_CANCEL:
                 break;
@@ -680,16 +681,20 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                     Stroke stroke = iterator.next().getValue(Stroke.class);
 //                    Log.v(LOGTAG, "Stroke " + stroke);
 //                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
+                    RGBColor color = stroke.getColor();
+                    double brushSize = stroke.getBrushSize();
 
                     for (Point point: stroke.getDrawingPath().getPoints()) {
                         tempTouchCoord.set(point.x, point.y);
-                        mTouchQueue.push(tempTouchCoord);
-                        Log.v(LOGTAG, "Point from db: " + point.x + " " + point.y);
+                        mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
+                       // mTouchQueue.push(tempTouchCoord);
+                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
             }
 
-            if (dataSnapshot.child(SERIALIZABLE_PATH_CHILD).exists()) {
+           /* if (dataSnapshot.child(SERIALIZABLE_PATH_CHILD).exists())
+            {
                 Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
@@ -698,11 +703,12 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
                     for (Point point: path.getPoints()) {
                         tempTouchCoord.set(point.x, point.y);
-                        mTouchQueue.push(tempTouchCoord);
+                        //mTouchQueue.push(tempTouchCoord);
+                        mRenderer.addTouchToQueue(tempTouchCoord);
 //                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
-            }
+            }*/
         }
 
         @Override
