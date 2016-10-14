@@ -45,6 +45,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleUtils;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.Vec4;
 
 
 // The renderer class for the ImageTargets sample. 
@@ -340,6 +341,59 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         }*/
 
         return mCanvasTexture;
+    }
+
+    public void addTouchToQueue(TouchCoord tc, RGBColor color, double brushSize)
+    {
+        this.mTouchQueue.setColor(color);
+        this.mTouchQueue.setBrushSize(brushSize);
+
+        addTouchToQueue(tc);
+    }
+
+    public void addTouchToQueue(TouchCoord tc)
+    {
+        transformCoordinates(tc.getX(), tc.getY());
+        this.mTouchQueue.push(tc);
+    }
+
+    private float[] transformCoordinates(float x, float y)
+    {
+        // Transform touch coordinates to viewport space [-1, 1]
+        Vec4 viewport_coords = new Vec4( (2.0f * x) / TouchCoordQueue.VIEWPORT_WIDTH - 1.0f,
+                1.0f - (2.0f * y) / TouchCoordQueue.VIEWPORT_HEIGHT,
+                -1.0f,
+                1.0f );
+
+        // Make sure values are clamped
+        viewport_coords.x = Math.max(-1.0f, Math.min(1.0f, (float)viewport_coords.x));
+        viewport_coords.y = Math.max(-1.0f, Math.min(1.0f, (float)viewport_coords.y));
+
+        float[] view_coords = new float[4];
+        float[] model_coords = new float[4];
+
+        Matrix.multiplyMV(view_coords, 0, mProjectionInverseMatrix, 0, viewport_coords.getFloatArray(), 0);
+
+        view_coords[2] = -1.0f;
+        view_coords[3] = 0.0f;
+
+        Matrix.multiplyMV(model_coords, 0, mViewInverseMatrix, 0, view_coords, 0);
+
+        // Normalize
+        float length = (float)Math.sqrt(model_coords[0]*model_coords[0] + model_coords[1]*model_coords[1] + model_coords[2]*model_coords[2] + model_coords[3]*model_coords[3]);
+        model_coords[0] /= length;
+        model_coords[1] /= length;
+        model_coords[2] /= length;
+        model_coords[3] /= length;
+
+        Log.e("cock", "Transformed: " + model_coords[0]
+                + " " + model_coords[1]
+                + " " + model_coords[2]
+                + " " + model_coords[3]);
+
+
+
+        return null;
     }
 
 //    public void setBrushColor(byte r, byte g, byte b)
