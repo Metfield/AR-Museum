@@ -217,7 +217,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         {
             TrackableResult result = state.getTrackableResult(tIdx);
             Trackable trackable = result.getTrackable();
-            printUserData(trackable);
+            //printUserData(trackable);
             Matrix44F modelViewMatrix_Vuforia = Tool.convertPose2GLMatrix(result.getPose());
             float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
 

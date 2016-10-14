@@ -636,7 +636,9 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     }
 
     private void startListeningToDrawingEventsFromDatabase() {
-        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
+//        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
+        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+
         Toast.makeText(MainActivity.this, "Starting to listen to db",
                 Toast.LENGTH_SHORT).show();
         Log.e(LOGTAG, "Listening to db");
@@ -669,6 +671,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
+                Log.v(LOGTAG, "Event from db");
                 Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
@@ -680,7 +683,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                     for (Point point: stroke.getDrawingPath().getPoints()) {
                         tempTouchCoord.set(point.x, point.y);
                         mTouchQueue.push(tempTouchCoord);
-//                        Log.v(LOGTAG, point.x + " " + point.y);
+                        Log.v(LOGTAG, "Point from db: " + point.x + " " + point.y);
                     }
                 }
             }
@@ -708,7 +711,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     };
 
     protected void onDrawingSurfaceLoaded() {
-        dropDatabase();
+//        dropDatabase();
         startListeningToDrawingEventsFromDatabase();
     }
 
