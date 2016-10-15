@@ -1,5 +1,6 @@
 package ciu196.chalmers.se.armuseum;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -53,7 +54,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
 
-public class MainActivity extends AppCompatActivity implements SampleApplicationControl
+public class MainActivity extends Activity implements SampleApplicationControl
 {
     private static final String LOGTAG = "MainActivity";
 
