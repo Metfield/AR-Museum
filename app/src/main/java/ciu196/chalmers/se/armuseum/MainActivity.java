@@ -30,6 +30,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rtugeek.android.colorseekbar.ColorSeekBar;
 import com.vuforia.CameraDevice;
 import com.vuforia.DataSet;
 import com.vuforia.ObjectTracker;
@@ -107,6 +108,9 @@ public class MainActivity extends Activity implements SampleApplicationControl
     private RGBColor currentColor;
     private float currentBrushSize;
 
+    // ColorPicker
+    private ColorSeekBar colorSeekBar;
+
     // Called when the activity first starts or the user navigates back to an
     // activity.
     @Override
@@ -114,6 +118,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
     {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         vuforiaAppSession = new SampleApplicationSession(this);
 
@@ -134,8 +139,11 @@ public class MainActivity extends Activity implements SampleApplicationControl
         //mTouchQueue = new TouchCoordQueue();
         tempTouchCoord = new TouchCoord(0, 0);
 
+        // Database
         setupFirebase();
         login();
+
+        initColorPicker();
 
         drawingPath = new SerializablePath();
         currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
@@ -699,4 +707,27 @@ public class MainActivity extends Activity implements SampleApplicationControl
             Log.w(LOGTAG, databaseError.toException());
         }
     };
+
+    private void initColorPicker() {
+        colorSeekBar = (ColorSeekBar) findViewById(R.id.colorSlider);
+
+        colorSeekBar.setMaxValue(100);
+        colorSeekBar.setColors(R.array.material_colors); // material_colors is defalut included in res/color,just use it.
+        colorSeekBar.setColorBarValue(10); //0 - maxValue
+        colorSeekBar.setAlphaBarValue(10); //0-255
+        colorSeekBar.setShowAlphaBar(true);
+        colorSeekBar.setBarHeight(5); //5dpi
+        colorSeekBar.setThumbHeight(30); //30dpi
+        colorSeekBar.setBarMargin(10); //set the margin between colorBar and alphaBar 10dpi
+
+        colorSeekBar.setOnColorChangeListener(new ColorSeekBar.OnColorChangeListener() {
+            @Override
+            public void onColorChangeListener(int colorBarValue, int alphaBarValue, int color) {
+                // TODO: Set brushcolor
+
+//                textView.setTextColor(color);
+            }
+        });
+
+    }
 }
