@@ -1,5 +1,6 @@
 package ciu196.chalmers.se.armuseum;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -11,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rtugeek.android.colorseekbar.ColorSeekBar;
 import com.vuforia.CameraDevice;
 import com.vuforia.DataSet;
 import com.vuforia.ObjectTracker;
@@ -52,7 +55,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
 
-public class MainActivity extends AppCompatActivity implements SampleApplicationControl
+public class MainActivity extends Activity implements SampleApplicationControl
 {
     private static final String LOGTAG = "MainActivity";
 
@@ -104,6 +107,9 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     private RGBColor currentColor;
     private double currentBrushSize;
 
+    // ColorPicker
+    private ColorSeekBar colorSeekBar;
+
     // Called when the activity first starts or the user navigates back to an
     // activity.
     @Override
@@ -111,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         vuforiaAppSession = new SampleApplicationSession(this);
 
@@ -130,6 +137,15 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         //mTouchQueue = new TouchCoordQueue();
         tempTouchCoord = new TouchCoord(0, 0);
 
+<<<<<<< HEAD
+=======
+        // Database
+        setupFirebase();
+        login();
+
+        initColorPicker();
+
+>>>>>>> 711eba048d0d3f90110736ce4b45c687f4b78246
         drawingPath = new SerializablePath();
         currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
         currentBrushSize = 20;
@@ -413,6 +429,15 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                 mContAutofocus = true;
             else
                 Log.e(LOGTAG, "Unable to enable continuous autofocus");
+<<<<<<< HEAD
+=======
+
+//            mSampleAppMenu = new SampleAppMenu(this, this, "Image Targets", mGlView, mUILayout, null);
+//            setSampleAppMenuSettings();
+
+            addOverlayView(true);
+
+>>>>>>> 711eba048d0d3f90110736ce4b45c687f4b78246
         } else
         {
             Log.e(LOGTAG, exception.getString());
@@ -683,6 +708,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         }
     };
 
+<<<<<<< HEAD
     protected void onDrawingSurfaceLoaded() {
 //        dropDatabase();
         startListeningToDrawingEventsFromDatabase();
@@ -691,4 +717,58 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     private void dropDatabase() {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).removeValue();
     }
+=======
+    private void initColorPicker() {
+        colorSeekBar = (ColorSeekBar) findViewById(R.id.colorSlider);
+
+        colorSeekBar.setMaxValue(100);
+        colorSeekBar.setColors(R.array.material_colors); // material_colors is defalut included in res/color,just use it.
+        colorSeekBar.setColorBarValue(10); //0 - maxValue
+        colorSeekBar.setAlphaBarValue(10); //0-255
+        colorSeekBar.setShowAlphaBar(false);
+        colorSeekBar.setBarHeight(10); //5dpi
+        colorSeekBar.setThumbHeight(30); //30dpi
+        colorSeekBar.setBarMargin(10); //set the margin between colorBar and alphaBar 10dpi
+
+        colorSeekBar.setOnColorChangeListener(new ColorSeekBar.OnColorChangeListener() {
+            @Override
+            public void onColorChangeListener(int colorBarValue, int alphaBarValue, int color) {
+                // TODO: Set brushcolor
+
+                currentColor = hexToRGB("#12FF1A");
+            }
+        });
+    }
+
+    private RGBColor hexToRGB(String hexColor) {
+        return new RGBColor(0, 0, 0);
+    }
+
+    // Adds the Overlay view to the GLView
+    private void addOverlayView(boolean initLayout)
+    {
+        // Inflates the Overlay Layout to be displayed above the Camera View
+        LayoutInflater inflater = LayoutInflater.from(this);
+        mUILayout = (RelativeLayout) inflater.inflate(
+                R.layout.activity_main, null, false);
+
+        mUILayout.setVisibility(View.VISIBLE);
+
+        // If this is the first time that the application runs then the
+        // uiLayout background is set to BLACK color, will be set to
+        // transparent once the SDK is initialized and camera ready to draw
+//        if (initLayout)
+//        {
+//            mUILayout.setBackgroundColor(Color.BLACK);
+//        }
+        mUILayout.setBackgroundColor(Color.TRANSPARENT);
+
+        // Adds the inflated layout to the view
+        addContentView(mUILayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        mUILayout.bringToFront();
+    }
+
+>>>>>>> 711eba048d0d3f90110736ce4b45c687f4b78246
 }
