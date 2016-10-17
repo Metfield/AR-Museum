@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -430,6 +431,8 @@ public class MainActivity extends Activity implements SampleApplicationControl
 //            mSampleAppMenu = new SampleAppMenu(this, this, "Image Targets", mGlView, mUILayout, null);
 //            setSampleAppMenuSettings();
 
+            addOverlayView(true);
+
         } else
         {
             Log.e(LOGTAG, exception.getString());
@@ -715,8 +718,8 @@ public class MainActivity extends Activity implements SampleApplicationControl
         colorSeekBar.setColors(R.array.material_colors); // material_colors is defalut included in res/color,just use it.
         colorSeekBar.setColorBarValue(10); //0 - maxValue
         colorSeekBar.setAlphaBarValue(10); //0-255
-        colorSeekBar.setShowAlphaBar(true);
-        colorSeekBar.setBarHeight(5); //5dpi
+        colorSeekBar.setShowAlphaBar(false);
+        colorSeekBar.setBarHeight(10); //5dpi
         colorSeekBar.setThumbHeight(30); //30dpi
         colorSeekBar.setBarMargin(10); //set the margin between colorBar and alphaBar 10dpi
 
@@ -725,9 +728,39 @@ public class MainActivity extends Activity implements SampleApplicationControl
             public void onColorChangeListener(int colorBarValue, int alphaBarValue, int color) {
                 // TODO: Set brushcolor
 
-//                textView.setTextColor(color);
+                currentColor = hexToRGB("#12FF1A");
             }
         });
-
     }
+
+    private RGBColor hexToRGB(String hexColor) {
+        return new RGBColor(0, 0, 0);
+    }
+
+    // Adds the Overlay view to the GLView
+    private void addOverlayView(boolean initLayout)
+    {
+        // Inflates the Overlay Layout to be displayed above the Camera View
+        LayoutInflater inflater = LayoutInflater.from(this);
+        mUILayout = (RelativeLayout) inflater.inflate(
+                R.layout.activity_main, null, false);
+
+        mUILayout.setVisibility(View.VISIBLE);
+
+        // If this is the first time that the application runs then the
+        // uiLayout background is set to BLACK color, will be set to
+        // transparent once the SDK is initialized and camera ready to draw
+//        if (initLayout)
+//        {
+//            mUILayout.setBackgroundColor(Color.BLACK);
+//        }
+        mUILayout.setBackgroundColor(Color.TRANSPARENT);
+
+        // Adds the inflated layout to the view
+        addContentView(mUILayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        mUILayout.bringToFront();
+    }
+
 }
