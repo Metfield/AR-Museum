@@ -24,8 +24,6 @@ import com.vuforia.Tool;
 import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
 import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
-import com.vuforia.Vec2F;
-import com.vuforia.Vec3F;
 import com.vuforia.Vuforia;
 
 import java.io.IOException;
@@ -78,6 +76,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     // @Eman
     private Texture mCanvasTexture;
 //    private RGBColor mCurrentBrushColor;
+
+    // FUCK YOU ANDROID, YOU GIVE ME NO OTHER CHOICE!
+    private int mLastEntryX, mLastEntryY;
 
     private float[] mProjectionInverseMatrix;
     private float[] mViewInverseMatrix;
@@ -200,6 +201,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         mProjectionInverseMatrix = new float[16];
         mViewInverseMatrix = new float[16];
         mModelViewMatrix = new float[16];
+
+        mLastEntryX = mLastEntryY = -1;
     }
     
     public void updateConfiguration()
@@ -358,8 +361,89 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc)
     {
-        transformCoordinates(tc.getX(), tc.getY());
-        this.mTouchQueue.push(tc);
+        //transformCoordinates(tc.getX(), tc.getY());
+
+        // Eman: Stupid fucking hack FUCK YOU JAVA
+        // As long as there is a previous entry do this
+        if(!isLastEntryNull())
+        {
+            // Set variables for line method
+            int x1 = mLastEntryX;
+            int y1 = mLastEntryY;
+            int x2 = tc.getX();
+            int y2 = tc.getY();
+
+            //this.mTouchQueue.push(tc);
+
+            createLineAndAddToQueue(x1, y1, x2, y2);
+
+            mLastEntryX = tc.getX();
+            mLastEntryY = tc.getY();
+        }
+        else
+        {
+            // If there is no entry add the first one
+            this.mTouchQueue.push(tc);
+            mLastEntryX = tc.getX();
+            mLastEntryY = tc.getY();
+        }
+    }
+
+    private boolean isLastEntryNull()
+    {
+        if(mLastEntryY != -1 || mLastEntryX != -1)
+            return false;
+        else
+            return true;
+    }
+
+    private void createLineAndAddToQueue(int _x1, int _y1, int _x2, int _y2)
+    {
+        int x = _x1;
+        int y = _y1;
+        int x2 = _x2;
+        int y2 = _y2;
+
+        // Get difference
+        int w = x2 - x ;
+        int h = y2 - y ;
+
+        int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+
+        // Configure algorithm according to octant
+        if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+        if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+        if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+
+        int longest = Math.abs(w) ;
+        int shortest = Math.abs(h) ;
+
+        if (!(longest>shortest))
+        {
+            longest = Math.abs(h) ;
+            shortest = Math.abs(w) ;
+            if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+            dx2 = 0 ;
+        }
+
+        int numerator = longest >> 1 ;
+
+        for (int i=0;i<=longest;i++)
+        {
+            mTouchQueue.push(new TouchCoord(x, y));
+            mActivity.getDrawingPath().addPoint(new Point(x, y));
+
+            numerator += shortest ;
+            if (!(numerator<longest))
+            {
+                numerator -= longest ;
+                x += dx1 ;
+                y += dy1 ;
+            } else {
+                x += dx2 ;
+                y += dy2 ;
+            }
+        }
     }
 
     private float[] transformCoordinates(float x, float y)
@@ -406,7 +490,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 //        this.mCurrentBrushColor = new RGBColor(r, g, b);
 //        this.mCanvasTexture.setBrushColor(this.mCurrentBrushColor);
 //    }
-
 
 }
 

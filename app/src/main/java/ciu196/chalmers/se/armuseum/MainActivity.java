@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
+import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -600,6 +601,11 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
     }
 
+    public SerializablePath getDrawingPath()
+    {
+        return this.drawingPath;
+    }
+
     private void setupFirebase() {
         // Authentication
         mAuth = FirebaseAuth.getInstance();
@@ -654,21 +660,25 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
     }
 
-    ValueEventListener drawingDatabaseListener = new ValueEventListener() {
+    ValueEventListener drawingDatabaseListener = new ValueEventListener()
+    {
         @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
+        public void onDataChange(DataSnapshot dataSnapshot)
+        {
+            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
+            {
 //                Log.v(LOGTAG, "Event from db");
                 Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-                while (iterator.hasNext()) {
-
+                while (iterator.hasNext())
+                {
                     Stroke stroke = iterator.next().getValue(Stroke.class);
                     RGBColor color = stroke.getColor();
                     double brushSize = stroke.getBrushSize();
 
-                    for (Point point: stroke.getSerializablePath().getPoints()) {
+                    for (Point point: stroke.getSerializablePath().getPoints())
+                    {
                         tempTouchCoord.set(point.x, point.y);
                         mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
 //                        Log.v(LOGTAG, point.x + " " + point.y);
@@ -678,12 +688,14 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         }
 
         @Override
-        public void onCancelled(DatabaseError databaseError) {
+        public void onCancelled(DatabaseError databaseError)
+        {
             Log.w(LOGTAG, databaseError.toException());
         }
     };
 
-    protected void onDrawingSurfaceLoaded() {
+    protected void onDrawingSurfaceLoaded()
+    {
 //        dropDatabase();
         startListeningToDrawingEventsFromDatabase();
     }
