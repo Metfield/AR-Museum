@@ -351,10 +351,12 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc, RGBColor color, double brushSize)
     {
-        if (mTouchQueue != null) {
+        if (mTouchQueue != null)
+        {
             this.mTouchQueue.setColor(color);
             this.mTouchQueue.setBrushSize(brushSize);
 
+            // DON'T ADD A LINE
             addTouchToQueue(tc);
         }
     }
@@ -373,8 +375,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             int x2 = tc.getX();
             int y2 = tc.getY();
 
-            //this.mTouchQueue.push(tc);
-
             createLineAndAddToQueue(x1, y1, x2, y2);
 
             mLastEntryX = tc.getX();
@@ -387,6 +387,12 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             mLastEntryX = tc.getX();
             mLastEntryY = tc.getY();
         }
+    }
+
+    public void clearTrail()
+    {
+        mLastEntryX = -1;
+        mLastEntryY = -1;
     }
 
     private boolean isLastEntryNull()

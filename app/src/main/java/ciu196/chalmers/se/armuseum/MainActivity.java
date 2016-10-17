@@ -577,6 +577,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
                 saveStroke(stroke);
 
                 this.mTouchQueue.reset();
+                mRenderer.clearTrail();
                 drawingPath.reset();
 
                 break;
@@ -696,7 +697,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
 
     protected void onDrawingSurfaceLoaded()
     {
-//        dropDatabase();
+        dropDatabase();
         startListeningToDrawingEventsFromDatabase();
     }
 
