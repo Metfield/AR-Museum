@@ -117,6 +117,10 @@ public class CanvasMesh extends MeshObject
         return result;
     }
 
+    public float getFrontFaceDepth()
+    {
+        return (float)this.front;
+    }
 
     @Override
     public int getNumObjectVertex()
