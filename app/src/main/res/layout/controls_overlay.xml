@@ -9,6 +9,23 @@
         android:layout_width="match_parent"
         app:colors="@array/material_colors"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
+
+    <SeekBar
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/BrushSize"
+        android:layout_toEndOf="@+id/seekBar"
+        android:layout_alignTop="@+id/seekBar"
+        android:layout_alignBottom="@+id/seekBar" />
 </RelativeLayout>

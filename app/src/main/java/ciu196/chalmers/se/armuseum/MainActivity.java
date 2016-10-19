@@ -7,6 +7,9 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Debug;
 import android.support.annotation.NonNull;
@@ -19,9 +22,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -56,8 +65,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
 
-public class MainActivity extends Activity implements SampleApplicationControl
-{
+public class MainActivity extends Activity implements SampleApplicationControl {
     private static final String LOGTAG = "MainActivity";
 
     // Firebase instance variables
@@ -106,16 +114,25 @@ public class MainActivity extends Activity implements SampleApplicationControl
     // Drawingpath
     private SerializablePath drawingPath;
     private RGBColor currentColor;
-    private double currentBrushSize;
+    private double currentBrushSize = 1.0;
 
     // ColorPicker
     private ColorSeekBar colorSeekBar;
 
+    //Brush size picker
+    private SeekBar sizeSeekBar;
+    private double maxBrushSize = 100;
+    private TextView brushSizeText;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
+
     // Called when the activity first starts or the user navigates back to an
     // activity.
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.activity_main);
@@ -132,7 +149,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         mTextures = new Vector<Texture>();
         loadTextures();
 
-        mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith("droid");
+        mIsDroidDevice = Build.MODEL.toLowerCase().startsWith("droid");
 
         // Eman
         //mTouchQueue = new TouchCoordQueue();
@@ -143,42 +160,52 @@ public class MainActivity extends Activity implements SampleApplicationControl
         login();
 
         drawingPath = new SerializablePath();
-        currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
-        currentBrushSize = 20;
+        currentColor = new RGBColor((byte) 20, (byte) 20, (byte) 20);
 
         setupFirebase();
         login();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
 
     @Override
     public void onStart() {
-        super.onStart();
+        super.onStart();// ATTENTION: This was auto-generated to implement the App Indexing API.
+// See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
         mAuth.addAuthStateListener(mAuthListener);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
 
 
     @Override
     public void onStop() {
-        super.onStop();
+        super.onStop();// ATTENTION: This was auto-generated to implement the App Indexing API.
+// See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.disconnect();
     }
 
     // We want to load specific textures from the APK, which we will later use
     // for rendering.
 
-    private void loadTextures()
-    {
+    private void loadTextures() {
         mTextures.add(Texture.loadTextureFromApk("canvas_texture.png", getAssets()));
     }
 
 
     // Called when the activity will start interacting with the user.
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         Log.d(LOGTAG, "onResume");
         super.onResume();
 
@@ -189,17 +216,14 @@ public class MainActivity extends Activity implements SampleApplicationControl
 //            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 //        }
 
-        try
-        {
+        try {
             vuforiaAppSession.resumeAR();
-        } catch (SampleApplicationException e)
-        {
+        } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
 
         // Resume the GL view:
-        if (mGlView != null)
-        {
+        if (mGlView != null) {
             mGlView.setVisibility(View.VISIBLE);
             mGlView.onResume();
         }
@@ -210,8 +234,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     // Callback for configuration changes the activity handles itself
     @Override
-    public void onConfigurationChanged(Configuration config)
-    {
+    public void onConfigurationChanged(Configuration config) {
         Log.d(LOGTAG, "onConfigurationChanged");
         super.onConfigurationChanged(config);
 
@@ -225,30 +248,24 @@ public class MainActivity extends Activity implements SampleApplicationControl
         Log.d(LOGTAG, "onPause");
         super.onPause();
 
-        if (mGlView != null)
-        {
+        if (mGlView != null) {
             mGlView.setVisibility(View.INVISIBLE);
             mGlView.onPause();
         }
 
         // Turn off the flash
-        if (mFlashOptionView != null && mFlash)
-        {
+        if (mFlashOptionView != null && mFlash) {
             // OnCheckedChangeListener is called upon changing the checked state
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-            {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 ((Switch) mFlashOptionView).setChecked(false);
-            } else
-            {
+            } else {
                 ((CheckBox) mFlashOptionView).setChecked(false);
             }
         }
 
-        try
-        {
+        try {
             vuforiaAppSession.pauseAR();
-        } catch (SampleApplicationException e)
-        {
+        } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
     }
@@ -256,16 +273,13 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     // The final call you receive before your activity is destroyed.
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         Log.d(LOGTAG, "onDestroy");
         super.onDestroy();
 
-        try
-        {
+        try {
             vuforiaAppSession.stopAR();
-        } catch (SampleApplicationException e)
-        {
+        } catch (SampleApplicationException e) {
             Log.e(LOGTAG, e.getString());
         }
 
@@ -278,8 +292,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
 
     // Initializes AR application components.
-    private void initApplicationAR()
-    {
+    private void initApplicationAR() {
         // Create OpenGL ES view:
         int depthSize = 16;
         int stencilSize = 0;
@@ -294,8 +307,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
     }
 
 
-    private void startLoadingAnimation()
-    {
+    private void startLoadingAnimation() {
         mUILayout = (RelativeLayout) View.inflate(this, R.layout.camera_overlay,
                 null);
 
@@ -320,8 +332,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     // Methods to load and destroy tracking data.
     @Override
-    public boolean doLoadTrackersData()
-    {
+    public boolean doLoadTrackersData() {
         TrackerManager tManager = TrackerManager.getInstance();
         ObjectTracker objectTracker = (ObjectTracker) tManager
                 .getTracker(ObjectTracker.getClassType());
@@ -343,11 +354,9 @@ public class MainActivity extends Activity implements SampleApplicationControl
             return false;
 
         int numTrackables = mCurrentDataset.getNumTrackables();
-        for (int count = 0; count < numTrackables; count++)
-        {
+        for (int count = 0; count < numTrackables; count++) {
             Trackable trackable = mCurrentDataset.getTrackable(count);
-            if(isExtendedTrackingActive())
-            {
+            if (isExtendedTrackingActive()) {
                 trackable.startExtendedTracking();
             }
 
@@ -359,8 +368,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
 
     @Override
-    public boolean doUnloadTrackersData()
-    {
+    public boolean doUnloadTrackersData() {
         // Indicate if the trackers were unloaded correctly
         boolean result = true;
 
@@ -370,14 +378,11 @@ public class MainActivity extends Activity implements SampleApplicationControl
         if (objectTracker == null)
             return false;
 
-        if (mCurrentDataset != null && mCurrentDataset.isActive())
-        {
+        if (mCurrentDataset != null && mCurrentDataset.isActive()) {
             if (objectTracker.getActiveDataSet().equals(mCurrentDataset)
-                    && !objectTracker.deactivateDataSet(mCurrentDataset))
-            {
+                    && !objectTracker.deactivateDataSet(mCurrentDataset)) {
                 result = false;
-            } else if (!objectTracker.destroyDataSet(mCurrentDataset))
-            {
+            } else if (!objectTracker.destroyDataSet(mCurrentDataset)) {
                 result = false;
             }
 
@@ -389,11 +394,9 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
 
     @Override
-    public void onInitARDone(SampleApplicationException exception)
-    {
+    public void onInitARDone(SampleApplicationException exception) {
 
-        if (exception == null)
-        {
+        if (exception == null) {
             initApplicationAR();
 
             mRenderer.setActive(true);
@@ -411,11 +414,9 @@ public class MainActivity extends Activity implements SampleApplicationControl
             // Sets the layout background to transparent
             mUILayout.setBackgroundColor(Color.TRANSPARENT);
 
-            try
-            {
+            try {
                 vuforiaAppSession.startAR(CameraDevice.CAMERA_DIRECTION.CAMERA_DIRECTION_DEFAULT);
-            } catch (SampleApplicationException e)
-            {
+            } catch (SampleApplicationException e) {
                 Log.e(LOGTAG, e.getString());
             }
 
@@ -429,8 +430,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
             addOverlayView(true);
 
-        } else
-        {
+        } else {
             Log.e(LOGTAG, exception.getString());
             showInitializationErrorMessage(exception.getString());
         }
@@ -438,15 +438,11 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
 
     // Shows initialization error messages as System dialogs
-    public void showInitializationErrorMessage(String message)
-    {
+    public void showInitializationErrorMessage(String message) {
         final String errorMessage = message;
-        runOnUiThread(new Runnable()
-        {
-            public void run()
-            {
-                if (mErrorDialog != null)
-                {
+        runOnUiThread(new Runnable() {
+            public void run() {
+                if (mErrorDialog != null) {
                     mErrorDialog.dismiss();
                 }
 
@@ -459,10 +455,8 @@ public class MainActivity extends Activity implements SampleApplicationControl
                         .setCancelable(false)
                         .setIcon(0)
                         .setPositiveButton(getString(R.string.button_OK),
-                                new DialogInterface.OnClickListener()
-                                {
-                                    public void onClick(DialogInterface dialog, int id)
-                                    {
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
                                         finish();
                                     }
                                 });
@@ -475,17 +469,14 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
 
     @Override
-    public void onVuforiaUpdate(State state)
-    {
-        if (mSwitchDatasetAsap)
-        {
+    public void onVuforiaUpdate(State state) {
+        if (mSwitchDatasetAsap) {
             mSwitchDatasetAsap = false;
             TrackerManager tm = TrackerManager.getInstance();
             ObjectTracker ot = (ObjectTracker) tm.getTracker(ObjectTracker
                     .getClassType());
             if (ot == null || mCurrentDataset == null
-                    || ot.getActiveDataSet() == null)
-            {
+                    || ot.getActiveDataSet() == null) {
                 Log.d(LOGTAG, "Failed to swap datasets");
                 return;
             }
@@ -497,8 +488,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
 
     @Override
-    public boolean doInitTrackers()
-    {
+    public boolean doInitTrackers() {
         // Indicate if the trackers were initialized correctly
         boolean result = true;
 
@@ -507,8 +497,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
         // Trying to initialize the image tracker
         tracker = tManager.initTracker(ObjectTracker.getClassType());
-        if (tracker == null)
-        {
+        if (tracker == null) {
             Log.e(
                     LOGTAG,
                     "Tracker not initialized. Tracker already initialized or the camera is already started");
@@ -521,8 +510,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
 
     @Override
-    public boolean doStartTrackers()
-    {
+    public boolean doStartTrackers() {
         // Indicate if the trackers were started correctly
         boolean result = true;
 
@@ -536,8 +524,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
 
     @Override
-    public boolean doStopTrackers()
-    {
+    public boolean doStopTrackers() {
         // Indicate if the trackers were stopped correctly
         boolean result = true;
 
@@ -550,8 +537,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
     }
 
     @Override
-    public boolean doDeinitTrackers()
-    {
+    public boolean doDeinitTrackers() {
         // Indicate if the trackers were deinitialized correctly
         boolean result = true;
 
@@ -562,17 +548,15 @@ public class MainActivity extends Activity implements SampleApplicationControl
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event)
-    {
+    public boolean onTouchEvent(MotionEvent event) {
         int index = event.getActionIndex();
         int action = event.getActionMasked();
         int pointerId = event.getPointerId(index);
 
-        int xPos = (int)event.getX();
-        int yPos = (int)event.getY();
+        int xPos = (int) event.getX();
+        int yPos = (int) event.getY();
 
-        switch(action)
-        {
+        switch (action) {
             case MotionEvent.ACTION_DOWN:
                 tempTouchCoord.set(xPos, yPos);
                 mRenderer.addTouchToQueue(tempTouchCoord, currentColor, currentBrushSize);
@@ -603,13 +587,11 @@ public class MainActivity extends Activity implements SampleApplicationControl
         return true;
     }
 
-    boolean isExtendedTrackingActive()
-    {
+    boolean isExtendedTrackingActive() {
         return mExtendedTracking;
     }
 
-    public TouchCoordQueue getTouchCoordQueue()
-    {
+    public TouchCoordQueue getTouchCoordQueue() {
         return this.mTouchQueue;
     }
 
@@ -617,8 +599,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
     }
 
-    public SerializablePath getDrawingPath()
-    {
+    public SerializablePath getDrawingPath() {
         return this.drawingPath;
     }
 
@@ -676,27 +657,22 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     }
 
-    ValueEventListener drawingDatabaseListener = new ValueEventListener()
-    {
+    ValueEventListener drawingDatabaseListener = new ValueEventListener() {
         @Override
-        public void onDataChange(DataSnapshot dataSnapshot)
-        {
-            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
-            {
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
 //                Log.v(LOGTAG, "Event from db");
                 Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-                while (iterator.hasNext())
-                {
+                while (iterator.hasNext()) {
                     Stroke stroke = iterator.next().getValue(Stroke.class);
                     RGBColor color = stroke.getColor();
                     double brushSize = stroke.getBrushSize();
 
-                    for (Point point: stroke.getSerializablePath().getPoints())
-                    {
+                    for (Point point : stroke.getSerializablePath().getPoints()) {
                         tempTouchCoord.set(point.x, point.y);
-                        mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
+                        mRenderer.addTouchToQueue(tempTouchCoord, color, brushSize);
 //                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
@@ -704,8 +680,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         }
 
         @Override
-        public void onCancelled(DatabaseError databaseError)
-        {
+        public void onCancelled(DatabaseError databaseError) {
             Log.w(LOGTAG, databaseError.toException());
         }
     };
@@ -732,13 +707,40 @@ public class MainActivity extends Activity implements SampleApplicationControl
         });
     }
 
+    private void initSizePicker() {
+        sizeSeekBar = (SeekBar) findViewById(R.id.seekBar);
+        brushSizeText = (TextView)findViewById(R.id.BrushSize);
+        brushSizeText.setText(Double.toString(currentBrushSize));
+        sizeSeekBar.setMax((int) maxBrushSize);
+
+        sizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(sizeSeekBar.getProgress() < 1)
+                {
+                    sizeSeekBar.setProgress(1);
+                }
+                currentBrushSize = sizeSeekBar.getProgress();
+                brushSizeText.setText(Double.toString(currentBrushSize));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
     private RGBColor hexToRGB(String hexColor) {
         return new RGBColor(0, 0, 0);
     }
 
     // Adds the Overlay view to the GLView
-    private void addOverlayView(boolean initLayout)
-    {
+    private void addOverlayView(boolean initLayout) {
         // Inflates the Overlay Layout to be displayed above the Camera View
         LayoutInflater inflater = LayoutInflater.from(this);
         mUILayout = (RelativeLayout) inflater.inflate(
@@ -761,13 +763,12 @@ public class MainActivity extends Activity implements SampleApplicationControl
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
         initColorPicker();
+        initSizePicker();
         mUILayout.bringToFront();
     }
 
 
-
-    protected void onDrawingSurfaceLoaded()
-    {
+    protected void onDrawingSurfaceLoaded() {
         dropDatabase();
         startListeningToDrawingEventsFromDatabase();
     }
@@ -776,10 +777,26 @@ public class MainActivity extends Activity implements SampleApplicationControl
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).removeValue();
     }
 
-    private void hideStatusBar()  {
+    private void hideStatusBar() {
         View decorView = getWindow().getDecorView();
         // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
     }
- }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Main Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+}
