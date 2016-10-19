@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class SerializablePath implements Serializable {
 
+    private Point startingPoint;
     private List<Point> points;
     public List<Point> getPoints() {return points;}
 
@@ -26,6 +27,10 @@ public class SerializablePath implements Serializable {
 
     public void reset() {
         points.clear();
+    }
+
+    public Point getStartingPoint() {
+        return points.get(0);
     }
 
 
