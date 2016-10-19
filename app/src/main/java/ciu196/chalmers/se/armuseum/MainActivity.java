@@ -118,7 +118,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
     {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
 
         vuforiaAppSession = new SampleApplicationSession(this);
 
@@ -141,8 +141,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
         // Database
         setupFirebase();
         login();
-
-        initColorPicker();
 
         drawingPath = new SerializablePath();
         currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
@@ -744,7 +742,8 @@ public class MainActivity extends Activity implements SampleApplicationControl
         // Inflates the Overlay Layout to be displayed above the Camera View
         LayoutInflater inflater = LayoutInflater.from(this);
         mUILayout = (RelativeLayout) inflater.inflate(
-                R.layout.activity_main, null, false);
+                R.layout.controls_overlay, null, false);
+
 
         mUILayout.setVisibility(View.VISIBLE);
 
@@ -761,6 +760,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         addContentView(mUILayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+        initColorPicker();
         mUILayout.bringToFront();
     }
 

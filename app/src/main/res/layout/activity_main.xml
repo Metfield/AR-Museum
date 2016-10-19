@@ -15,14 +15,7 @@
         android:layout_height="wrap_content"
         android:text="Hello World!"
         android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_alignEnd="@+id/colorSlider" />
+        android:layout_alignParentTop="true" />
 
-    <com.rtugeek.android.colorseekbar.ColorSeekBar
-        android:id="@+id/colorSlider"
-        android:layout_width="match_parent"
-        app:colors="@array/material_colors"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
+
 </RelativeLayout>
