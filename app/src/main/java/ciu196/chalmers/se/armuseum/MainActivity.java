@@ -60,6 +60,8 @@ public class MainActivity extends Activity implements SampleApplicationControl
 {
     private static final String LOGTAG = "MainActivity";
 
+    private boolean dropDatabaseOnStart = true;
+
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseAuth mAuth;
@@ -108,6 +110,8 @@ public class MainActivity extends Activity implements SampleApplicationControl
     private RGBColor currentColor;
     private double currentBrushSize;
 
+    private static final RGBColor DEFAULT_COLOR = new RGBColor(20, 20, 20);
+
     // ColorPicker
     private ColorSeekBar colorSeekBar;
 
@@ -118,7 +122,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
     {
         Log.d(LOGTAG, "onCreate");
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
 
         vuforiaAppSession = new SampleApplicationSession(this);
 
@@ -143,7 +146,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         login();
 
         drawingPath = new SerializablePath();
-        currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
+        currentColor = DEFAULT_COLOR;
         currentBrushSize = 20;
 
         setupFirebase();
@@ -313,8 +316,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
         // Adds the inflated layout to the view
         addContentView(mUILayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-
-
     }
 
 
@@ -646,7 +647,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     private void startListeningToDrawingEventsFromDatabase() {
 //        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
-        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+//        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
 
         Toast.makeText(MainActivity.this, "Starting to listen to db",
                 Toast.LENGTH_SHORT).show();
@@ -681,6 +682,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         @Override
         public void onDataChange(DataSnapshot dataSnapshot)
         {
+            // Database listener firing for every point added
             if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
             {
 //                Log.v(LOGTAG, "Event from db");
@@ -693,10 +695,10 @@ public class MainActivity extends Activity implements SampleApplicationControl
                     RGBColor color = stroke.getColor();
                     double brushSize = stroke.getBrushSize();
 
-                    for (Point point: stroke.getSerializablePath().getPoints())
-                    {
+                    for (Point point: stroke.getSerializablePath().getPoints()) {
                         tempTouchCoord.set(point.x, point.y);
-                        mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
+
+                        mRenderer.addTouchToQueue(tempTouchCoord,color , brushSize);
 //                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
@@ -725,18 +727,18 @@ public class MainActivity extends Activity implements SampleApplicationControl
         colorSeekBar.setOnColorChangeListener(new ColorSeekBar.OnColorChangeListener() {
             @Override
             public void onColorChangeListener(int colorBarValue, int alphaBarValue, int color) {
-                // TODO: Set brushcolor
-
-                Log.e("Main", color + " " + colorBarValue);
+                currentColor = intToRGB(color);
             }
         });
+
+        currentColor = intToRGB(colorSeekBar.getColor());
     }
 
-    private RGBColor hexToRGB(String hexColor) {
-        return new RGBColor(0, 0, 0);
+    private RGBColor intToRGB(int androidColorInt) {
+        return new RGBColor(Color.red(androidColorInt), Color.green(androidColorInt), Color.blue(androidColorInt));
     }
 
-    // Adds the Overlay view to the GLView
+    // Adds the Controls Overlay view to the GLView
     private void addOverlayView(boolean initLayout)
     {
         // Inflates the Overlay Layout to be displayed above the Camera View
@@ -768,7 +770,9 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     protected void onDrawingSurfaceLoaded()
     {
-        dropDatabase();
+        if (dropDatabaseOnStart) {
+            dropDatabase();
+        }
         startListeningToDrawingEventsFromDatabase();
     }
 

@@ -29,4 +29,9 @@ public class RGBColor implements Serializable
     public int getR() {return r;}
     public int getG() {return g;}
     public int getB() {return b;}
+
+    @Override
+    public String toString() {
+        return "R: " + getR() + " G: " + getG() + " B: " + getB();
+    }
 }

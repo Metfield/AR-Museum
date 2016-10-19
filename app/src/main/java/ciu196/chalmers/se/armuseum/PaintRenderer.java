@@ -351,14 +351,11 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc, RGBColor color, double brushSize)
     {
-        if (mTouchQueue != null)
-        {
-            this.mTouchQueue.setColor(color);
-            this.mTouchQueue.setBrushSize(brushSize);
+        this.mTouchQueue.setColor(color);
+        this.mTouchQueue.setBrushSize(brushSize);
 
-            // DON'T ADD A LINE
-            addTouchToQueue(tc);
-        }
+        // DON'T ADD A LINE
+//        addTouchToQueue(tc);
     }
 
     public void addTouchToQueue(TouchCoord tc)
