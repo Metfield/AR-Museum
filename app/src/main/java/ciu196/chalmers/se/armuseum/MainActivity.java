@@ -106,11 +106,9 @@ public class MainActivity extends Activity implements SampleApplicationControl
     PaintManager painter;
 
     // Eman
-    private TouchCoordQueue mTouchQueue;
-    public TouchCoord tempTouchCoord;
+//    public TouchCoord tempTouchCoord;
 
     // Drawingpath
-    private SerializablePath drawingPath;
     private RGBColor currentColor;
     private double currentBrushSize;
 
@@ -142,9 +140,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
         mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith("droid");
 
         // Eman
-        //mTouchQueue = new TouchCoordQueue();
-        tempTouchCoord = new TouchCoord(0, 0);
-        drawingPath = new SerializablePath();
         currentColor = DEFAULT_COLOR;
         currentBrushSize = 20;
 
@@ -584,30 +579,12 @@ public class MainActivity extends Activity implements SampleApplicationControl
             case MotionEvent.ACTION_DOWN:
                 painter.startLine(touchCoordinate, currentColor, currentBrushSize);
 
-//                tempTouchCoord.set(xPos, yPos);
-//                mRenderer.addTouchToQueue(tempTouchCoord, currentColor, currentBrushSize);
-
-//                drawingPath.addPoint(new Point(xPos, yPos));
-
                 break;
             case MotionEvent.ACTION_MOVE:
                 painter.lineTo(touchCoordinate);
-
-//                tempTouchCoord.set(xPos, yPos);
-//                mRenderer.addTouchToQueue(tempTouchCoord);
-//
-//                drawingPath.addPoint(new Point(xPos, yPos));
-
                 break;
             case MotionEvent.ACTION_UP:
                 painter.finishLine();
-//                Stroke stroke = new Stroke(drawingPath, currentColor, currentBrushSize);
-//                saveStroke(stroke);
-//
-//                this.mTouchQueue.reset();
-//                mRenderer.clearTrail();
-//                drawingPath.reset();
-
                 break;
             case MotionEvent.ACTION_CANCEL:
                 break;
@@ -617,15 +594,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
     }
 
     boolean isExtendedTrackingActive() { return mExtendedTracking; }
-
-//    private void saveStroke(Stroke stroke) {
-//        mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
-//    }
-
-//    public SerializablePath getDrawingPath()
-//    {
-//        return this.drawingPath;
-//    }
 
     private void setupFirebase() {
         // Authentication
@@ -671,45 +639,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
                 });
 
     }
-
-//    ValueEventListener drawingDatabaseListener = new ValueEventListener()
-//    {
-//        @Override
-//        public void onDataChange(DataSnapshot dataSnapshot)
-//        {
-//            // Database listener firing for every point added
-//            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
-//            {
-////                Log.v(LOGTAG, "Event from db");
-//                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
-//
-//                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-//                while (iterator.hasNext())
-//                {
-//                    Stroke stroke = iterator.next().getValue(Stroke.class);
-//                    RGBColor color = stroke.getColor();
-//                    double brushSize = stroke.getBrushSize();
-//
-//                    List<Point> points = stroke.getSerializablePath().getPoints();
-//                    tempTouchCoord.set(points.get(0).x, points.get(0).y);
-//                    mRenderer.addTouchToQueue(tempTouchCoord, color, brushSize);
-//
-//                    for (Point point: points) {
-//                        tempTouchCoord.set(point.x, point.y);
-//
-//                        mRenderer.addTouchToQueue(tempTouchCoord);
-////                        Log.v(LOGTAG, point.x + " " + point.y);
-//                    }
-//                }
-//            }
-//        }
-//
-//        @Override
-//        public void onCancelled(DatabaseError databaseError)
-//        {
-//            Log.w(LOGTAG, databaseError.toException());
-//        }
-//    };
 
     private void initColorPicker() {
         colorSeekBar = (ColorSeekBar) findViewById(R.id.colorSlider);

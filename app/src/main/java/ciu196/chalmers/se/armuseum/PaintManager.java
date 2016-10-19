@@ -74,7 +74,6 @@ public class PaintManager {
         if (!isDatabaseCall) {
             // For db
             drawingPath.addPoint(point);
-
         }
     }
 
@@ -102,27 +101,16 @@ public class PaintManager {
         SerializablePath path = stroke.getSerializablePath();
 
         if (path != null) {
-
             Point start = stroke.getSerializablePath().getStartingPoint();
-//        TouchCoord tempTouchCoord = new TouchCoord(start.x, start.y);
-
             startLine(start, color, brushSize, true);
-
-
-//        renderer.addTouchToQueue(tempTouchCoord, color, brushSize);
 
             for (Point point: stroke.getSerializablePath().getPoints()) {
                 lineTo(point, true);
-//            tempTouchCoord.set(point.x, point.y);
-//
-//            renderer.addTouchToQueue(tempTouchCoord);
-//                        Log.v(LOGTAG, point.x + " " + point.y);
             }
             finishLine(true);
         }
     }
-
-
+    
     private void saveStrokeToDb(Stroke stroke) {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
     }
@@ -135,7 +123,6 @@ public class PaintManager {
             // Database listener firing for every point added
             if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
             {
-//                Log.v(LOGTAG, "Event from db");
                 Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
@@ -150,21 +137,6 @@ public class PaintManager {
                         drawStrokesInBacklog();
                         drawStroke(stroke);
                     }
-
-
-//                    RGBColor color = stroke.getColor();
-//                    double brushSize = stroke.getBrushSize();
-
-//                    List<Point> points = stroke.getSerializablePath().getPoints();
-//                    TouchCoord tempTouchCoord = new TouchCoord(points.get(0).x, points.get(0).y);
-//                    renderer.addTouchToQueue(tempTouchCoord, color, brushSize);
-//
-//                    for (Point point: points) {
-//                        tempTouchCoord.set(point.x, point.y);
-//
-//                        renderer.addTouchToQueue(tempTouchCoord);
-////                        Log.v(LOGTAG, point.x + " " + point.y);
-//                    }
                 }
             }
         }
