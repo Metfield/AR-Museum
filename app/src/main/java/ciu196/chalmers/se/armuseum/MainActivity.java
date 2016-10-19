@@ -429,7 +429,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
                 Log.e(LOGTAG, "Unable to enable continuous autofocus");
 
             addOverlayView(true);
-
         } else
         {
             Log.e(LOGTAG, exception.getString());
@@ -647,7 +646,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     private void startListeningToDrawingEventsFromDatabase() {
 //        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
-//        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
 
         Toast.makeText(MainActivity.this, "Starting to listen to db",
                 Toast.LENGTH_SHORT).show();
@@ -765,8 +764,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
         initColorPicker();
         mUILayout.bringToFront();
     }
-
-
 
     protected void onDrawingSurfaceLoaded()
     {
