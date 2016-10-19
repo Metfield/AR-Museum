@@ -7,11 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,10 +23,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -63,8 +55,6 @@ import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplicationGLView;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
 
 public class MainActivity extends Activity implements SampleApplicationControl {
     private static final String LOGTAG = "MainActivity";
@@ -129,11 +119,6 @@ public class MainActivity extends Activity implements SampleApplicationControl {
     private SeekBar sizeSeekBar;
     private double maxBrushSize = 100;
     private TextView brushSizeText;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
 
     // Called when the activity first starts or the user navigates back to an
     // activity.
@@ -165,38 +150,20 @@ public class MainActivity extends Activity implements SampleApplicationControl {
         setupFirebase();
         login();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-
-
         painter = new PaintManager(mRenderer);
     }
 
 
     @Override
     public void onStart() {
-        super.onStart();// ATTENTION: This was auto-generated to implement the App Indexing API.
-// See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
+        super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
 
 
     @Override
     public void onStop() {
-        super.onStop();// ATTENTION: This was auto-generated to implement the App Indexing API.
-// See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.end(client, getIndexApiAction());
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.disconnect();
+        super.onStop();
     }
 
     // We want to load specific textures from the APK, which we will later use
@@ -741,19 +708,4 @@ public class MainActivity extends Activity implements SampleApplicationControl {
         decorView.setSystemUiVisibility(uiOptions);
     }
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("Main Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new Action.Builder(Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-                .build();
-    }
 }
