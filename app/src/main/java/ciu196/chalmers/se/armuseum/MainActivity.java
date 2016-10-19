@@ -102,6 +102,9 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     boolean mIsDroidDevice = false;
 
+    // Paintmanager
+    PaintManager painter;
+
     // Eman
     private TouchCoordQueue mTouchQueue;
     public TouchCoord tempTouchCoord;
@@ -148,6 +151,8 @@ public class MainActivity extends Activity implements SampleApplicationControl
         // Database
         setupFirebase();
         login();
+
+        painter = new PaintManager(mRenderer);
     }
 
 
@@ -291,6 +296,10 @@ public class MainActivity extends Activity implements SampleApplicationControl
         mRenderer = new PaintRenderer(this, vuforiaAppSession);
         mRenderer.setTextures(mTextures);
         mGlView.setRenderer(mRenderer);
+
+        // TODO: Hack: git painting manager a renderer
+        painter.setRenderer(mRenderer);
+
     }
 
 
@@ -568,29 +577,36 @@ public class MainActivity extends Activity implements SampleApplicationControl
         int xPos = (int)event.getX();
         int yPos = (int)event.getY();
 
+        Point touchCoordinate = new Point(xPos, yPos);
+
         switch(action)
         {
             case MotionEvent.ACTION_DOWN:
-                tempTouchCoord.set(xPos, yPos);
-                mRenderer.addTouchToQueue(tempTouchCoord, currentColor, currentBrushSize);
+                painter.startLine(touchCoordinate, currentColor, currentBrushSize);
 
-                drawingPath.addPoint(new Point(xPos, yPos));
+//                tempTouchCoord.set(xPos, yPos);
+//                mRenderer.addTouchToQueue(tempTouchCoord, currentColor, currentBrushSize);
+
+//                drawingPath.addPoint(new Point(xPos, yPos));
 
                 break;
             case MotionEvent.ACTION_MOVE:
-                tempTouchCoord.set(xPos, yPos);
-                mRenderer.addTouchToQueue(tempTouchCoord);
+                painter.lineTo(touchCoordinate);
 
-                drawingPath.addPoint(new Point(xPos, yPos));
+//                tempTouchCoord.set(xPos, yPos);
+//                mRenderer.addTouchToQueue(tempTouchCoord);
+//
+//                drawingPath.addPoint(new Point(xPos, yPos));
 
                 break;
             case MotionEvent.ACTION_UP:
-                Stroke stroke = new Stroke(drawingPath, currentColor, currentBrushSize);
-                saveStroke(stroke);
-
-                this.mTouchQueue.reset();
-                mRenderer.clearTrail();
-                drawingPath.reset();
+                painter.finishLine();
+//                Stroke stroke = new Stroke(drawingPath, currentColor, currentBrushSize);
+//                saveStroke(stroke);
+//
+//                this.mTouchQueue.reset();
+//                mRenderer.clearTrail();
+//                drawingPath.reset();
 
                 break;
             case MotionEvent.ACTION_CANCEL:
@@ -602,14 +618,14 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     boolean isExtendedTrackingActive() { return mExtendedTracking; }
 
-    private void saveStroke(Stroke stroke) {
-        mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
-    }
+//    private void saveStroke(Stroke stroke) {
+//        mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
+//    }
 
-    public SerializablePath getDrawingPath()
-    {
-        return this.drawingPath;
-    }
+//    public SerializablePath getDrawingPath()
+//    {
+//        return this.drawingPath;
+//    }
 
     private void setupFirebase() {
         // Authentication
@@ -633,15 +649,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
-    private void startListeningToDrawingEventsFromDatabase() {
-//        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
-        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
-
-        Toast.makeText(MainActivity.this, "Starting to listen to db",
-                Toast.LENGTH_SHORT).show();
-        Log.v(LOGTAG, "Listening to db");
-
-    }
 
     private void login() {
         mAuth.signInAnonymously()
@@ -665,44 +672,44 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     }
 
-    ValueEventListener drawingDatabaseListener = new ValueEventListener()
-    {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot)
-        {
-            // Database listener firing for every point added
-            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
-            {
-//                Log.v(LOGTAG, "Event from db");
-                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
-
-                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-                while (iterator.hasNext())
-                {
-                    Stroke stroke = iterator.next().getValue(Stroke.class);
-                    RGBColor color = stroke.getColor();
-                    double brushSize = stroke.getBrushSize();
-
-                    List<Point> points = stroke.getSerializablePath().getPoints();
-                    tempTouchCoord.set(points.get(0).x, points.get(0).y);
-                    mRenderer.addTouchToQueue(tempTouchCoord, color, brushSize);
-
-                    for (Point point: points) {
-                        tempTouchCoord.set(point.x, point.y);
-
-                        mRenderer.addTouchToQueue(tempTouchCoord);
-//                        Log.v(LOGTAG, point.x + " " + point.y);
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError)
-        {
-            Log.w(LOGTAG, databaseError.toException());
-        }
-    };
+//    ValueEventListener drawingDatabaseListener = new ValueEventListener()
+//    {
+//        @Override
+//        public void onDataChange(DataSnapshot dataSnapshot)
+//        {
+//            // Database listener firing for every point added
+//            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
+//            {
+////                Log.v(LOGTAG, "Event from db");
+//                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
+//
+//                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
+//                while (iterator.hasNext())
+//                {
+//                    Stroke stroke = iterator.next().getValue(Stroke.class);
+//                    RGBColor color = stroke.getColor();
+//                    double brushSize = stroke.getBrushSize();
+//
+//                    List<Point> points = stroke.getSerializablePath().getPoints();
+//                    tempTouchCoord.set(points.get(0).x, points.get(0).y);
+//                    mRenderer.addTouchToQueue(tempTouchCoord, color, brushSize);
+//
+//                    for (Point point: points) {
+//                        tempTouchCoord.set(point.x, point.y);
+//
+//                        mRenderer.addTouchToQueue(tempTouchCoord);
+////                        Log.v(LOGTAG, point.x + " " + point.y);
+//                    }
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void onCancelled(DatabaseError databaseError)
+//        {
+//            Log.w(LOGTAG, databaseError.toException());
+//        }
+//    };
 
     private void initColorPicker() {
         colorSeekBar = (ColorSeekBar) findViewById(R.id.colorSlider);
@@ -764,6 +771,10 @@ public class MainActivity extends Activity implements SampleApplicationControl
             dropDatabase();
         }
         startListeningToDrawingEventsFromDatabase();
+    }
+
+    private void startListeningToDrawingEventsFromDatabase() {
+        painter.connectToDb();
     }
 
     private void dropDatabase() {
