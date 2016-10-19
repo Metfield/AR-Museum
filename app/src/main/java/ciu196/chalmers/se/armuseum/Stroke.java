@@ -1,25 +1,27 @@
 package ciu196.chalmers.se.armuseum;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Created by johnpetersson on 2016-10-10.
  */
 public class Stroke implements Serializable {
-    private SerializablePath drawingPath;
+    private SerializablePath serializablePath;
     private RGBColor color;
-    private Date timeStamp;
+    private double brushSize;
+//    private Date timeStamp;
 
     public Stroke() {}
-    public Stroke(SerializablePath drawPath, RGBColor color) {
-        this.drawingPath = drawPath;
+    public Stroke(SerializablePath serializablePath, RGBColor color, double brushSize) {
+        this.serializablePath = serializablePath;
         this.color = color;
-        timeStamp = new Date();
+        this.brushSize = brushSize;
+//        timeStamp = new Date();
     }
 
-    public SerializablePath getDrawingPath() {return drawingPath;}
+    public SerializablePath getSerializablePath() {return serializablePath;}
     public RGBColor getColor() {return color;}
-    public Date getTimeStamp() {return timeStamp;}
+    public double getBrushSize() {return brushSize;}
+//    public Date getTimeStamp() {return timeStamp;}
 
 }

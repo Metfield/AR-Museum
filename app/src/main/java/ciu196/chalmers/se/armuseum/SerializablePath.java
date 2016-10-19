@@ -11,7 +11,7 @@ import java.util.List;
  * Created by johnpetersson on 2016-10-10.\
  *
  */
-public class SerializablePath extends Path implements Serializable {
+public class SerializablePath implements Serializable {
 
     private List<Point> points;
     public List<Point> getPoints() {return points;}
@@ -27,6 +27,7 @@ public class SerializablePath extends Path implements Serializable {
     public void reset() {
         points.clear();
     }
+
 
 
 

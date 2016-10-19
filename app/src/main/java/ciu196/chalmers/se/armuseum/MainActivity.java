@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
+import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,7 +45,6 @@ import com.vuforia.Vuforia;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Queue;
 import java.util.Vector;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationControl;
@@ -64,13 +64,12 @@ public class MainActivity extends Activity implements SampleApplicationControl
     private DatabaseReference mFirebaseDatabaseReference;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    public static final String SERIALIZABLE_PATH_CHILD = "serializablepath";
     public static final String STROKE_PATH_CHILD = "stroke";
 
     SampleApplicationSession vuforiaAppSession;
 
     private DataSet mCurrentDataset;
-    private int mCurrentDatasetSelectionIndex = 0;
+    private int mCurrentDatasetSelectionIndex = 1;
     private int mStartDatasetsIndex = 0;
     private int mDatasetsNumber = 0;
     private ArrayList<String> mDatasetStrings = new ArrayList<String>();
@@ -107,7 +106,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
     // Drawingpath
     private SerializablePath drawingPath;
     private RGBColor currentColor;
-    private float currentBrushSize;
+    private double currentBrushSize;
 
     // ColorPicker
     private ColorSeekBar colorSeekBar;
@@ -125,7 +124,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
         startLoadingAnimation();
         mDatasetStrings.add("StonesAndChips.xml");
-        mDatasetStrings.add("Tarmac.xml");
         mDatasetStrings.add("ARMuseumDataBase.xml");
 
         vuforiaAppSession.initAR(this, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -148,6 +146,10 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
         drawingPath = new SerializablePath();
         currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
+        currentBrushSize = 20;
+
+        setupFirebase();
+        login();
     }
 
 
@@ -182,12 +184,12 @@ public class MainActivity extends Activity implements SampleApplicationControl
         Log.d(LOGTAG, "onResume");
         super.onResume();
 
-        // This is needed for some Droid devices to force portrait
-        if (mIsDroidDevice)
-        {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+//        // This is needed for some Droid devices to force portrait
+//        if (mIsDroidDevice)
+//        {
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
 
         try
         {
@@ -204,6 +206,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
             mGlView.onResume();
         }
 
+        hideStatusBar();
     }
 
 
@@ -220,8 +223,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     // Called when the system is about to start resuming a previous activity.
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         Log.d(LOGTAG, "onPause");
         super.onPause();
 
@@ -314,6 +316,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         addContentView(mUILayout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+
     }
 
 
@@ -352,8 +355,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
             String name = "Current Dataset : " + trackable.getName();
             trackable.setUserData(name);
-//            Log.d(LOGTAG, "UserData:Set the following user data "
-//                    + (String) trackable.getUserData());
         }
         return true;
     }
@@ -427,9 +428,6 @@ public class MainActivity extends Activity implements SampleApplicationControl
                 mContAutofocus = true;
             else
                 Log.e(LOGTAG, "Unable to enable continuous autofocus");
-
-//            mSampleAppMenu = new SampleAppMenu(this, this, "Image Targets", mGlView, mUILayout, null);
-//            setSampleAppMenuSettings();
 
             addOverlayView(true);
 
@@ -517,8 +515,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
                     LOGTAG,
                     "Tracker not initialized. Tracker already initialized or the camera is already started");
             result = false;
-        } else
-        {
+        } else {
             Log.i(LOGTAG, "Tracker successfully initialized");
         }
         return result;
@@ -580,24 +577,26 @@ public class MainActivity extends Activity implements SampleApplicationControl
         {
             case MotionEvent.ACTION_DOWN:
                 tempTouchCoord.set(xPos, yPos);
-                this.mTouchQueue.push(tempTouchCoord);
-                this.mTouchQueue.setColor(currentColor);
-                this.mTouchQueue.setBrushSize(currentBrushSize);
+                mRenderer.addTouchToQueue(tempTouchCoord, currentColor, currentBrushSize);
 
                 drawingPath.addPoint(new Point(xPos, yPos));
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 tempTouchCoord.set(xPos, yPos);
-                this.mTouchQueue.push(tempTouchCoord);
+                mRenderer.addTouchToQueue(tempTouchCoord);
 
                 drawingPath.addPoint(new Point(xPos, yPos));
+
                 break;
             case MotionEvent.ACTION_UP:
-                Stroke stroke = new Stroke(drawingPath, currentColor);
+                Stroke stroke = new Stroke(drawingPath, currentColor, currentBrushSize);
                 saveStroke(stroke);
 
                 this.mTouchQueue.reset();
+                mRenderer.clearTrail();
                 drawingPath.reset();
+
                 break;
             case MotionEvent.ACTION_CANCEL:
                 break;
@@ -616,12 +615,13 @@ public class MainActivity extends Activity implements SampleApplicationControl
         return this.mTouchQueue;
     }
 
-    private void saveDrawingPath(SerializablePath drawingPath) {
-        mFirebaseDatabaseReference.child(SERIALIZABLE_PATH_CHILD).push().setValue(drawingPath);
-    }
-
     private void saveStroke(Stroke stroke) {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
+    }
+
+    public SerializablePath getDrawingPath()
+    {
+        return this.drawingPath;
     }
 
     private void setupFirebase() {
@@ -644,7 +644,16 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
         // Database
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+    }
+
+    private void startListeningToDrawingEventsFromDatabase() {
+//        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
         mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+
+        Toast.makeText(MainActivity.this, "Starting to listen to db",
+                Toast.LENGTH_SHORT).show();
+        Log.v(LOGTAG, "Listening to db");
+
     }
 
     private void login() {
@@ -669,36 +678,27 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     }
 
-    ValueEventListener drawingDatabaseListener = new ValueEventListener() {
+    ValueEventListener drawingDatabaseListener = new ValueEventListener()
+    {
         @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
-                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
+        public void onDataChange(DataSnapshot dataSnapshot)
+        {
+            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
+            {
+//                Log.v(LOGTAG, "Event from db");
+                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-                while (iterator.hasNext()) {
+                while (iterator.hasNext())
+                {
                     Stroke stroke = iterator.next().getValue(Stroke.class);
+                    RGBColor color = stroke.getColor();
+                    double brushSize = stroke.getBrushSize();
 
-//                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
-
-                    for (Point point: stroke.getDrawingPath().getPoints()) {
+                    for (Point point: stroke.getSerializablePath().getPoints())
+                    {
                         tempTouchCoord.set(point.x, point.y);
-                        mTouchQueue.push(tempTouchCoord);
-//                        Log.v(LOGTAG, point.x + " " + point.y);
-                    }
-                }
-            }
-
-            if (dataSnapshot.child(SERIALIZABLE_PATH_CHILD).exists()) {
-                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(SERIALIZABLE_PATH_CHILD).getChildren();
-
-                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-                while (iterator.hasNext()) {
-                    SerializablePath path = iterator.next().getValue(SerializablePath.class);
-
-                    for (Point point: path.getPoints()) {
-                        tempTouchCoord.set(point.x, point.y);
-                        mTouchQueue.push(tempTouchCoord);
+                        mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
 //                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
@@ -706,7 +706,8 @@ public class MainActivity extends Activity implements SampleApplicationControl
         }
 
         @Override
-        public void onCancelled(DatabaseError databaseError) {
+        public void onCancelled(DatabaseError databaseError)
+        {
             Log.w(LOGTAG, databaseError.toException());
         }
     };
@@ -763,4 +764,22 @@ public class MainActivity extends Activity implements SampleApplicationControl
         mUILayout.bringToFront();
     }
 
-}
+
+
+    protected void onDrawingSurfaceLoaded()
+    {
+        dropDatabase();
+        startListeningToDrawingEventsFromDatabase();
+    }
+
+    private void dropDatabase() {
+        mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).removeValue();
+    }
+
+    private void hideStatusBar()  {
+        View decorView = getWindow().getDecorView();
+        // Hide the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+ }

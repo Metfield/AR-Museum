@@ -45,8 +45,11 @@ public class Texture
     public int mBufferSize;
     private TouchCoordQueue mTouchQueue;
 
-    private RGBColor mBrushColor;
-    private float mBrushSize;
+
+    private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
+    private RGBColor mBrushColor = DEFAULT_COLOR;
+    private static final double DEFAULT_BRUSH_SIZE = 20;
+    private double mBrushSize= DEFAULT_BRUSH_SIZE;
 
     /* Factory function to load a texture from the APK. */
     public static Texture loadTextureFromApk(String fileName,
@@ -110,7 +113,7 @@ public class Texture
         for (int r = 0; r < texture.mHeight; r++)
         {
             texture.mData.put(dataBytes, rowSize * (texture.mHeight - 1 - r), rowSize);
-    }
+        }
 
         texture.mBufferSize = texture.mData.position();
         texture.mData.rewind();
@@ -162,7 +165,7 @@ public class Texture
             }
 
             // Get u,v coordinates
-            u = tc.getU();
+            u = tc.getU() * mChannels;
             v = mHeight - tc.getV();
 
 //            Log.e("blah","Raw v: " + v);

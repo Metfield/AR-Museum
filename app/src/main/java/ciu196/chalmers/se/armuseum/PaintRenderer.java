@@ -38,9 +38,12 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeObject;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplication3DModel;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleMath;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleUtils;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.Vec4;
 
 
 // The renderer class for the ImageTargets sample. 
@@ -73,6 +76,13 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     // @Eman
     private Texture mCanvasTexture;
 //    private RGBColor mCurrentBrushColor;
+
+    // FUCK YOU ANDROID, YOU GIVE ME NO OTHER CHOICE!
+    private int mLastEntryX, mLastEntryY;
+
+    private float[] mProjectionInverseMatrix;
+    private float[] mViewInverseMatrix;
+    private float[] mModelViewMatrix;
 
     public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
@@ -181,11 +191,18 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         Point tempPoint = new Point();
         mActivity.getWindowManager().getDefaultDisplay().getSize(tempPoint);
 
+        // Eman
         VIEWPORT_WIDTH = tempPoint.x;
         VIEWPORT_HEIGHT = tempPoint.y;
 
         mTouchQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
         mTouchQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;
+
+        mProjectionInverseMatrix = new float[16];
+        mViewInverseMatrix = new float[16];
+        mModelViewMatrix = new float[16];
+
+        mLastEntryX = mLastEntryY = -1;
     }
     
     public void updateConfiguration()
@@ -217,7 +234,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         {
             TrackableResult result = state.getTrackableResult(tIdx);
             Trackable trackable = result.getTrackable();
-            printUserData(trackable);
+            //printUserData(trackable);
             Matrix44F modelViewMatrix_Vuforia = Tool.convertPose2GLMatrix(result.getPose());
             float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
 
@@ -236,6 +253,11 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             }
 
             Matrix.multiplyMM(modelViewProjection, 0, projectionMatrix, 0, modelViewMatrix, 0);
+
+            // Eman: Get projection and view inverse
+            Matrix.invertM(this.mProjectionInverseMatrix, 0, projectionMatrix, 0);
+            Matrix.invertM(this.mViewInverseMatrix, 0, modelViewMatrix, 0);
+            this.mModelViewMatrix = modelViewMatrix;
 
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
@@ -289,17 +311,184 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     {
         mTextures = textures;
         mCanvasTexture = textures.get(CANVAS_TEXTURE);
+
 //        mCurrentBrushColor = new RGBColor((byte)20, (byte)20, (byte)20);
 //        mCanvasTexture.setBrushColor(mCurrentBrushColor);
+
+        mActivity.onDrawingSurfaceLoaded();
     }
 
     public Texture getCanvasTexture()
     {
         // Do the whole texture getting here
         if(mTouchQueue.getSize() > 0)
+        {
             mCanvasTexture.updatePixels();
+        }
+
+       /* TouchCoord tc;
+        Vec2F point;// = new Vec2F();
+        Vec3F center = new Vec3F(0.0f, 0.0f, 0.0f);
+        Vec3F normal = new Vec3F(0.0f, 0.0f, 1.0f);
+        Matrix44F projectionInverse, modelView;
+
+        projectionInverse = new Matrix44F();
+        modelView = new Matrix44F();
+
+        projectionInverse.setData(mProjectionInverseMatrix);
+        projectionInverse.setData(mModelViewMatrix);
+
+        while(mTouchQueue.getSize() > 0)
+        {
+            tc = mTouchQueue.pop();
+            point = new Vec2F(tc.getX(), tc.getY());
+
+            SampleMath.projectScreenPointToPlane(projectionInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, point, center, normal);
+        }*/
 
         return mCanvasTexture;
+    }
+
+    public void addTouchToQueue(TouchCoord tc, RGBColor color, double brushSize)
+    {
+        if (mTouchQueue != null)
+        {
+            this.mTouchQueue.setColor(color);
+            this.mTouchQueue.setBrushSize(brushSize);
+
+            // DON'T ADD A LINE
+            addTouchToQueue(tc);
+        }
+    }
+
+    public void addTouchToQueue(TouchCoord tc)
+    {
+        //transformCoordinates(tc.getX(), tc.getY());
+
+        // Eman: Stupid fucking hack FUCK YOU JAVA
+        // As long as there is a previous entry do this
+        if(!isLastEntryNull())
+        {
+            // Set variables for line method
+            int x1 = mLastEntryX;
+            int y1 = mLastEntryY;
+            int x2 = tc.getX();
+            int y2 = tc.getY();
+
+            createLineAndAddToQueue(x1, y1, x2, y2);
+
+            mLastEntryX = tc.getX();
+            mLastEntryY = tc.getY();
+        }
+        else
+        {
+            // If there is no entry add the first one
+            this.mTouchQueue.push(tc);
+            mLastEntryX = tc.getX();
+            mLastEntryY = tc.getY();
+        }
+    }
+
+    public void clearTrail()
+    {
+        mLastEntryX = -1;
+        mLastEntryY = -1;
+    }
+
+    private boolean isLastEntryNull()
+    {
+        if(mLastEntryY != -1 || mLastEntryX != -1)
+            return false;
+        else
+            return true;
+    }
+
+    private void createLineAndAddToQueue(int _x1, int _y1, int _x2, int _y2)
+    {
+        int x = _x1;
+        int y = _y1;
+        int x2 = _x2;
+        int y2 = _y2;
+
+        // Get difference
+        int w = x2 - x ;
+        int h = y2 - y ;
+
+        int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
+
+        // Configure algorithm according to octant
+        if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
+        if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
+        if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
+
+        int longest = Math.abs(w) ;
+        int shortest = Math.abs(h) ;
+
+        if (!(longest>shortest))
+        {
+            longest = Math.abs(h) ;
+            shortest = Math.abs(w) ;
+            if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
+            dx2 = 0 ;
+        }
+
+        int numerator = longest >> 1 ;
+
+        for (int i=0;i<=longest;i++)
+        {
+            mTouchQueue.push(new TouchCoord(x, y));
+            mActivity.getDrawingPath().addPoint(new Point(x, y));
+
+            numerator += shortest ;
+            if (!(numerator<longest))
+            {
+                numerator -= longest ;
+                x += dx1 ;
+                y += dy1 ;
+            } else {
+                x += dx2 ;
+                y += dy2 ;
+            }
+        }
+    }
+
+    private float[] transformCoordinates(float x, float y)
+    {
+        // Transform touch coordinates to viewport space [-1, 1]
+        Vec4 viewport_coords = new Vec4( (2.0f * x) / TouchCoordQueue.VIEWPORT_WIDTH - 1.0f,
+                1.0f - (2.0f * y) / TouchCoordQueue.VIEWPORT_HEIGHT,
+                -1.0f,
+                1.0f );
+
+        // Make sure values are clamped
+        viewport_coords.x = Math.max(-1.0f, Math.min(1.0f, (float)viewport_coords.x));
+        viewport_coords.y = Math.max(-1.0f, Math.min(1.0f, (float)viewport_coords.y));
+
+        float[] view_coords = new float[4];
+        float[] model_coords = new float[4];
+
+        Matrix.multiplyMV(view_coords, 0, mProjectionInverseMatrix, 0, viewport_coords.getFloatArray(), 0);
+
+        view_coords[2] = -1.0f;
+        view_coords[3] = 0.0f;
+
+        Matrix.multiplyMV(model_coords, 0, mViewInverseMatrix, 0, view_coords, 0);
+
+        // Normalize
+        float length = (float)Math.sqrt(model_coords[0]*model_coords[0] + model_coords[1]*model_coords[1] + model_coords[2]*model_coords[2] + model_coords[3]*model_coords[3]);
+        model_coords[0] /= length;
+        model_coords[1] /= length;
+        model_coords[2] /= length;
+        model_coords[3] /= length;
+
+//        Log.e("cock", "Transformed: " + model_coords[0]
+//                + " " + model_coords[1]
+//                + " " + model_coords[2]
+//                + " " + model_coords[3]);
+
+
+
+        return null;
     }
 
 //    public void setBrushColor(byte r, byte g, byte b)
@@ -307,7 +496,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 //        this.mCurrentBrushColor = new RGBColor(r, g, b);
 //        this.mCanvasTexture.setBrushColor(this.mCurrentBrushColor);
 //    }
-
 
 }
 

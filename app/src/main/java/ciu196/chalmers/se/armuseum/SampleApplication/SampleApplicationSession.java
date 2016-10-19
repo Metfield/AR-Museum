@@ -39,7 +39,10 @@ import ciu196.chalmers.se.armuseum.R;
 public class SampleApplicationSession implements UpdateCallbackInterface
 {
 
+    // Emils
     private static final String LICENSE_KEY = "AfzC6Ir/////AAAAGXzjnby0qEyFmKM3N6ke0ocvn907eJ8A7A2DRoxeesAIBvSrCVNPge84mR7KttmRG/GY6FsCdm6qrvmCDByaa5fNCKo+kXywLj9I2JHNOV+6fZB+2q0Bag4bFyhYERmlISc8arPr03S1mRP3m2KtWJtDm9i+dbtCDGFWCESWGdXTzhHMMJ8TtO4ZcxOigfF/pTMpLaoE6tGN5/u5Xl38pXC6IXjusVP3LkWKT1zA8y41LcBfjImcOqugoljff3FwBLqvCaXl3W55K1KNqL0owSXQV4TNbykmo7WCqEWilnXWd7Emdlx7yeNJeU4knCEtS2JYFtuYo2eawwYixWiT4+CnVTVJPZmhtyuRYVdA+qqZ";
+    // Johns
+//    private static final String LICENSE_KEY = "ARqiWff/////AAAAGTlz1aJGMUsMkTjl0ouXW6cCK3RVTVI9+USa3fpJ/5MzwdTeNjqkj1W9Ei92RnFfY+7G9QPgghbO7tE2TecZy8j+S1sFnW8LkMhO2C8g1WLkMxYmu+tUVFg8+v79I0o0D+xI3+hHk9LkujBaEY1Wl7D21euPdKDniWfhF3PWXKu1cKtOBjGZ/ekjCcdUrLJ5L7f4ZPnVcerFi75pLDfnnEB897z7kZ0U17PM3hHHwLbsHt1WvCpFQ7RPM+hdy13LRSuFlvjJEmJX48vWqnSByGK+CXh0XIl/eJw4TOCexZMt2NukixVNbaGzqAMNW7gdA7sAFkruY34h/IQHCCF9FQ/qCv/kVYOzLeBGeIjRSQWQ";
 
     private static final String LOGTAG = "SampleAppSession";
     

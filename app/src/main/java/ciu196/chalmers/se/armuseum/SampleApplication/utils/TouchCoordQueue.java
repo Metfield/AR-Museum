@@ -12,14 +12,18 @@ import ciu196.chalmers.se.armuseum.RGBColor;
  */
 public class TouchCoordQueue
 {
+    private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
+//    private static final double DEFAULT_BRUSH_SIZE = 20;
+
+
     // Use Vector maybe?
     private static Queue<TouchCoord> queue = new LinkedBlockingQueue<>();
     public static int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
     public static int TEXTURE_SIZE;
 
-    private static RGBColor currentColor;
-    private static float currentBrushSize;
+    private static RGBColor currentColor = DEFAULT_COLOR;
+    private static double currentBrushSize;
 
     public static void push(TouchCoord tc)
     {
@@ -58,12 +62,12 @@ public class TouchCoordQueue
         currentColor = color;
     }
 
-    public static float getBrushSize()
+    public static double getBrushSize()
     {
         return currentBrushSize;
     }
 
-    public static void setBrushSize(float size)
+    public static void setBrushSize(double size)
     {
         currentBrushSize = size;
     }
@@ -71,7 +75,7 @@ public class TouchCoordQueue
     public static void reset()
     {
         currentBrushSize = 0;
-        currentColor = null;
+        currentColor = DEFAULT_COLOR;
         queue.clear();
     }
 }
