@@ -171,12 +171,12 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
         Log.d(LOGTAG, "onResume");
         super.onResume();
 
-        // This is needed for some Droid devices to force portrait
-        if (mIsDroidDevice)
-        {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+//        // This is needed for some Droid devices to force portrait
+//        if (mIsDroidDevice)
+//        {
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
 
         try
         {
@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
             mGlView.onResume();
         }
 
+        hideStatusBar();
     }
 
 
@@ -704,4 +705,11 @@ public class MainActivity extends AppCompatActivity implements SampleApplication
     private void dropDatabase() {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).removeValue();
     }
-}
+
+    private void hideStatusBar()  {
+        View decorView = getWindow().getDecorView();
+        // Hide the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+ }
