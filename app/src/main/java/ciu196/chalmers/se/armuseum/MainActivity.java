@@ -728,7 +728,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
             public void onColorChangeListener(int colorBarValue, int alphaBarValue, int color) {
                 // TODO: Set brushcolor
 
-                currentColor = hexToRGB("#12FF1A");
+                Log.e("Main", color + " " + colorBarValue);
             }
         });
     }
