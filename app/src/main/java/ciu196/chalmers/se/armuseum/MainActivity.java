@@ -61,7 +61,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
 {
     private static final String LOGTAG = "MainActivity";
 
-    private boolean dropDatabaseOnStart = true;
+    private boolean dropDatabaseOnStart = false;
 
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;

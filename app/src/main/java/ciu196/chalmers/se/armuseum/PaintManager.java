@@ -40,7 +40,7 @@ public class PaintManager {
         currentColor = new RGBColor(0, 0, 0);
         currentBrushSize = 20;
 
-        strokeBacklog = new LinkedList<Stroke>();
+        strokeBacklog = new LinkedList();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
@@ -68,7 +68,7 @@ public class PaintManager {
         lineTo(point, false);
     }
 
-    public void lineTo(Point point, boolean isDatabaseCall) {
+    private void lineTo(Point point, boolean isDatabaseCall) {
         renderer.addTouchToQueue(new TouchCoord(point.x, point.y));
 
         if (!isDatabaseCall) {
@@ -80,7 +80,6 @@ public class PaintManager {
     public void finishLine() {
         finishLine(false);
     }
-
 
     private void finishLine(boolean isDatabaseCall) {
         TouchCoordQueue.reset();
@@ -110,7 +109,7 @@ public class PaintManager {
             finishLine(true);
         }
     }
-    
+
     private void saveStrokeToDb(Stroke stroke) {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
     }
@@ -131,7 +130,7 @@ public class PaintManager {
                     Stroke stroke = iterator.next().getValue(Stroke.class);
 
                     // Renderer is not yet initialized, add strokes to backlog to be rendered later
-                    if (renderer == null) {
+                    if (renderer == null || renderer.getCanvasTexture() == null) {
                         strokeBacklog.add(stroke);
                     } else {
                         drawStrokesInBacklog();
