@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
+import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -136,22 +137,13 @@ public class MainActivity extends Activity implements SampleApplicationControl
         // Eman
         //mTouchQueue = new TouchCoordQueue();
         tempTouchCoord = new TouchCoord(0, 0);
-
-<<<<<<< HEAD
-=======
-        // Database
-        setupFirebase();
-        login();
-
-        initColorPicker();
-
->>>>>>> 711eba048d0d3f90110736ce4b45c687f4b78246
         drawingPath = new SerializablePath();
         currentColor = new RGBColor((byte)20, (byte)20, (byte)20);
         currentBrushSize = 20;
 
         setupFirebase();
         login();
+        initColorPicker();
     }
 
 
@@ -186,12 +178,12 @@ public class MainActivity extends Activity implements SampleApplicationControl
         Log.d(LOGTAG, "onResume");
         super.onResume();
 
-        // This is needed for some Droid devices to force portrait
-        if (mIsDroidDevice)
-        {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+//        // This is needed for some Droid devices to force portrait
+//        if (mIsDroidDevice)
+//        {
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
 
         try
         {
@@ -208,6 +200,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
             mGlView.onResume();
         }
 
+        hideStatusBar();
     }
 
 
@@ -429,15 +422,11 @@ public class MainActivity extends Activity implements SampleApplicationControl
                 mContAutofocus = true;
             else
                 Log.e(LOGTAG, "Unable to enable continuous autofocus");
-<<<<<<< HEAD
-=======
 
 //            mSampleAppMenu = new SampleAppMenu(this, this, "Image Targets", mGlView, mUILayout, null);
 //            setSampleAppMenuSettings();
 
             addOverlayView(true);
-
->>>>>>> 711eba048d0d3f90110736ce4b45c687f4b78246
         } else
         {
             Log.e(LOGTAG, exception.getString());
@@ -601,6 +590,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
                 saveStroke(stroke);
 
                 this.mTouchQueue.reset();
+                mRenderer.clearTrail();
                 drawingPath.reset();
 
                 break;
@@ -623,6 +613,11 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     private void saveStroke(Stroke stroke) {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
+    }
+
+    public SerializablePath getDrawingPath()
+    {
+        return this.drawingPath;
     }
 
     private void setupFirebase() {
@@ -679,21 +674,25 @@ public class MainActivity extends Activity implements SampleApplicationControl
 
     }
 
-    ValueEventListener drawingDatabaseListener = new ValueEventListener() {
+    ValueEventListener drawingDatabaseListener = new ValueEventListener()
+    {
         @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
+        public void onDataChange(DataSnapshot dataSnapshot)
+        {
+            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
+            {
 //                Log.v(LOGTAG, "Event from db");
                 Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
 
                 Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-                while (iterator.hasNext()) {
-
+                while (iterator.hasNext())
+                {
                     Stroke stroke = iterator.next().getValue(Stroke.class);
                     RGBColor color = stroke.getColor();
                     double brushSize = stroke.getBrushSize();
 
-                    for (Point point: stroke.getSerializablePath().getPoints()) {
+                    for (Point point: stroke.getSerializablePath().getPoints())
+                    {
                         tempTouchCoord.set(point.x, point.y);
                         mRenderer.addTouchToQueue(tempTouchCoord,color, brushSize);
 //                        Log.v(LOGTAG, point.x + " " + point.y);
@@ -703,21 +702,22 @@ public class MainActivity extends Activity implements SampleApplicationControl
         }
 
         @Override
-        public void onCancelled(DatabaseError databaseError) {
+        public void onCancelled(DatabaseError databaseError)
+        {
             Log.w(LOGTAG, databaseError.toException());
         }
     };
 
-<<<<<<< HEAD
-    protected void onDrawingSurfaceLoaded() {
-//        dropDatabase();
+    protected void onDrawingSurfaceLoaded()
+    {
+        dropDatabase();
         startListeningToDrawingEventsFromDatabase();
     }
 
     private void dropDatabase() {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).removeValue();
     }
-=======
+
     private void initColorPicker() {
         colorSeekBar = (ColorSeekBar) findViewById(R.id.colorSlider);
 
@@ -770,5 +770,11 @@ public class MainActivity extends Activity implements SampleApplicationControl
         mUILayout.bringToFront();
     }
 
->>>>>>> 711eba048d0d3f90110736ce4b45c687f4b78246
-}
+    private void hideStatusBar()  {
+        View decorView = getWindow().getDecorView();
+        // Hide the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+ }
+
