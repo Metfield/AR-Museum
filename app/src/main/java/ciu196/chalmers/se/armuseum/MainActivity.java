@@ -45,6 +45,7 @@ import com.vuforia.Vuforia;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationControl;
@@ -140,15 +141,11 @@ public class MainActivity extends Activity implements SampleApplicationControl
         // Eman
         //mTouchQueue = new TouchCoordQueue();
         tempTouchCoord = new TouchCoord(0, 0);
-
-        // Database
-        setupFirebase();
-        login();
-
         drawingPath = new SerializablePath();
         currentColor = DEFAULT_COLOR;
         currentBrushSize = 20;
 
+        // Database
         setupFirebase();
         login();
     }
@@ -603,15 +600,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         return true;
     }
 
-    boolean isExtendedTrackingActive()
-    {
-        return mExtendedTracking;
-    }
-
-    public TouchCoordQueue getTouchCoordQueue()
-    {
-        return this.mTouchQueue;
-    }
+    boolean isExtendedTrackingActive() { return mExtendedTracking; }
 
     private void saveStroke(Stroke stroke) {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
@@ -694,10 +683,14 @@ public class MainActivity extends Activity implements SampleApplicationControl
                     RGBColor color = stroke.getColor();
                     double brushSize = stroke.getBrushSize();
 
-                    for (Point point: stroke.getSerializablePath().getPoints()) {
+                    List<Point> points = stroke.getSerializablePath().getPoints();
+                    tempTouchCoord.set(points.get(0).x, points.get(0).y);
+                    mRenderer.addTouchToQueue(tempTouchCoord, color, brushSize);
+
+                    for (Point point: points) {
                         tempTouchCoord.set(point.x, point.y);
 
-                        mRenderer.addTouchToQueue(tempTouchCoord,color , brushSize);
+                        mRenderer.addTouchToQueue(tempTouchCoord);
 //                        Log.v(LOGTAG, point.x + " " + point.y);
                     }
                 }
@@ -733,7 +726,7 @@ public class MainActivity extends Activity implements SampleApplicationControl
         currentColor = intToRGB(colorSeekBar.getColor());
     }
 
-    private RGBColor intToRGB(int androidColorInt) {
+    private static RGBColor intToRGB(int androidColorInt) {
         return new RGBColor(Color.red(androidColorInt), Color.green(androidColorInt), Color.blue(androidColorInt));
     }
 

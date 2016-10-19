@@ -434,7 +434,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         for (int i=0;i<=longest;i++)
         {
             mTouchQueue.push(new TouchCoord(x, y));
-            mActivity.getDrawingPath().addPoint(new Point(x, y));
+//            mActivity.getDrawingPath().addPoint(new Point(x, y));
 
             numerator += shortest ;
             if (!(numerator<longest))
