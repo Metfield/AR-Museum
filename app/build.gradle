@@ -6,7 +6,7 @@ def JAR_DIR = 'build/java/vuforia'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "23.0.1"
 
     sourceSets.main {
         jni.srcDirs = []
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "ciu196.chalmers.se.armuseum"
         minSdkVersion 17
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }

@@ -398,7 +398,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc)
     {
-        transformCoordinates(tc.getX(), tc.getY());
+        //transformCoordinates(tc.getX(), tc.getY());
 
         // Eman: Stupid fucking hack FUCK YOU JAVA
         // As long as there is a previous entry do this
