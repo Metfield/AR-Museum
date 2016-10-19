@@ -5,7 +5,7 @@ def NATIVE_LIB_DIR = 'build/lib'
 def JAR_DIR = 'build/java/vuforia'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 23
     buildToolsVersion "22.0.1"
 
     sourceSets.main {
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "ciu196.chalmers.se.armuseum"
         minSdkVersion 17
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -33,10 +33,12 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
     compile files("$VUFORIA_SDK_DIR/$JAR_DIR/Vuforia.jar")
     compile 'com.google.firebase:firebase-database:9.6.1'
     compile 'com.google.firebase:firebase-auth:9.6.1'
+    compile 'com.github.rtugeek:ColorSeekBar:1.0.2'
+    compile 'com.google.android.gms:play-services-appindexing:9.6.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

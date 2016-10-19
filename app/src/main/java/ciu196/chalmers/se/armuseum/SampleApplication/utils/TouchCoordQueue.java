@@ -19,9 +19,7 @@ public class TouchCoordQueue
     // Use Vector maybe?
     private static Queue<TouchCoord> queue = new LinkedBlockingQueue<>();
     public static int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
-
     public static int TEXTURE_SIZE;
-
     private static RGBColor currentColor = DEFAULT_COLOR;
     private static double currentBrushSize;
 
