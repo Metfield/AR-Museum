@@ -12,6 +12,7 @@ package ciu196.chalmers.se.armuseum;
 import android.graphics.Point;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLU;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.widget.Toast;
@@ -36,7 +37,9 @@ import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CanvasMesh;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeObject;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeShaders;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.LineShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.RayMesh;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplication3DModel;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleMath;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleUtils;
@@ -65,6 +68,10 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     private int mvpMatrixHandle;
     private int texSampler2DHandle;
 
+    // Line Shader
+    private int colorHandle;
+    private int lineShaderProgramID;
+
     private CanvasMesh mCanvas;
 
     private float kBuildingScale = 12.0f;
@@ -83,6 +90,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     private float[] mProjectionInverseMatrix;
     private float[] mViewInverseMatrix;
     private float[] mModelViewMatrix;
+
+    // Ray member
+    private RayMesh mDebugRay;
 
     public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
@@ -165,14 +175,21 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 CubeShaders.CUBE_MESH_VERTEX_SHADER,
                 CubeShaders.CUBE_MESH_FRAGMENT_SHADER);
 
+        lineShaderProgramID = SampleUtils.createProgramFromShaderSrc(
+                LineShaders.LINE_VERTEX_SHADER,
+                LineShaders.LINE_FRAGMENT_SHADER);
+
         vertexHandle = GLES20.glGetAttribLocation(shaderProgramID, "vertexPosition");
         textureCoordHandle = GLES20.glGetAttribLocation(shaderProgramID, "vertexTexCoord");
         mvpMatrixHandle = GLES20.glGetUniformLocation(shaderProgramID, "modelViewProjectionMatrix");
         texSampler2DHandle = GLES20.glGetUniformLocation(shaderProgramID, "texSampler2D");
 
+        colorHandle = GLES20.glGetUniformLocation(lineShaderProgramID, "color");
+
         if(!mModelsLoaded)
         {
             mCanvas = new CanvasMesh();
+            mDebugRay = new RayMesh();
 
             try
             {
@@ -288,6 +305,27 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
                 // Also set TouchCoordQueue texture size
                 mTouchQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
+
+                // Eman
+                // Now draw the debug RAY!!!
+                GLES20.glUseProgram(lineShaderProgramID);
+
+                GLES20.glLineWidth(50);
+
+                GLES20.glVertexAttribPointer(vertexHandle, 3, GLES20.GL_FLOAT, false, 0, mDebugRay.getVertices());
+                GLES20.glEnableVertexAttribArray(vertexHandle);
+
+                // pass the model view matrix to the shader
+                GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, modelViewProjection, 0);
+
+                // Set Ray color
+                GLES20.glUniform3f(colorHandle, 10.0f, 255.0f, 40.0f);
+
+                // finally draw the ray
+                GLES20.glDrawElements(GLES20.GL_LINES, mDebugRay.getNumObjectIndex(), GLES20.GL_UNSIGNED_SHORT, mDebugRay.getIndices());
+
+                // disable the enabled arrays
+                GLES20.glDisableVertexAttribArray(vertexHandle);
             }
             else
             {
@@ -449,6 +487,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         }
     }
 
+    // STILL HIGHLY UNSTABLE METHOD!!!!
     private float[] transformCoordinates(float x, float y)
     {
         // Transform touch coordinates to viewport space [-1, 1]
@@ -463,6 +502,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
         float[] view_coords = new float[4];
         float[] model_coords = new float[4];
+        float[] ray_origin = new float[4];
 
         Matrix.multiplyMV(view_coords, 0, mProjectionInverseMatrix, 0, viewport_coords.getFloatArray(), 0);
 
@@ -471,19 +511,56 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
         Matrix.multiplyMV(model_coords, 0, mViewInverseMatrix, 0, view_coords, 0);
 
+        ray_origin[0] = model_coords[0];
+        ray_origin[1] = model_coords[1];
+        ray_origin[2] = model_coords[2];
+
         // Normalize
-        float length = (float)Math.sqrt(model_coords[0]*model_coords[0] + model_coords[1]*model_coords[1] + model_coords[2]*model_coords[2] + model_coords[3]*model_coords[3]);
-        model_coords[0] /= length;
-        model_coords[1] /= length;
-        model_coords[2] /= length;
-        model_coords[3] /= length;
+        float length = (float)Math.sqrt(ray_origin[0]*ray_origin[0] + ray_origin[1]*ray_origin[1] + ray_origin[2]*ray_origin[2]);
+        ray_origin[0] /= length;
+        ray_origin[1] /= length;
+        ray_origin[2] = (ray_origin[2] / length) + mCanvas.getFrontFaceDepth();
 
-//        Log.e("cock", "Transformed: " + model_coords[0]
-//                + " " + model_coords[1]
-//                + " " + model_coords[2]
-//                + " " + model_coords[3]);
+      /*  Log.e("cock", "Transformed: " + ray[0]
+                + " " + ray[1]
+                + " " + ray[2]);
+*/
+
+        mDebugRay.setOrigin(ray_origin[0], ray_origin[1], ray_origin[2] + 10);
+        mDebugRay.setDestination(ray_origin[0], ray_origin[1], -10);
 
 
+        float[] ray_dir = new float[] {0.0f, 0.0f, -1.0f};
+
+        float[] n = new float[] {0.0f, 0.0f, 1.0f};
+
+        // Get t distance
+        float upper_t = ray_origin[0] * n[0] + ray_origin[1] * n[1] + ray_origin[2] * n[2];
+        float lower_t = ray_dir[0] * n[0] + ray_dir[1] * n[1] + ray_dir[2] * n[2];
+
+        if(upper_t == 0 || lower_t == 0)
+        {
+            Log.e("cock", "MIIISS MATHAFACKA!!!!!");
+            return new float[]{0,0};
+        }
+
+        float t = - (upper_t / lower_t);
+
+        if(t < 0)
+        {
+            Log.e("cock", "MIIISS HIJUEPUTA!!!!!!!!!");
+            return new float[]{0,0};
+        }
+        // Substitute t values in ray equation
+        float[] canvas_coords = new float[3];
+
+        canvas_coords[0] = ray_origin[0] + ray_dir[0] * t;
+        canvas_coords[1] = ray_origin[1] + ray_dir[1] * t;
+        canvas_coords[2] = ray_origin[2] + ray_dir[2] * t;
+
+        /*Log.e("cock", "CanvasCoords: " + canvas_coords[0]
+                + " " + canvas_coords[1]
+                + " " + canvas_coords[2]);*/
 
         return null;
     }
