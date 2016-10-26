@@ -100,6 +100,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     private static final float OBJECT_SCALE_FLOAT = 200.0f;
 
+    // To know whether there is something we can draw on
+    boolean mIsTextureActive = false;
+
     public PaintRenderer(MainActivity activity, SampleApplicationSession session)
     {
         mActivity = activity;
@@ -107,6 +110,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting
         // the device mode AR/VR and stereo mode
         mSampleAppRenderer = new SampleAppRenderer(this, Device.MODE.MODE_AR, false);
+
+        mTouchQueue = TouchCoordQueue.getInstance();
     }
     
     
@@ -212,8 +217,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         VIEWPORT_WIDTH = tempPoint.x;
         VIEWPORT_HEIGHT = tempPoint.y;
 
-        mTouchQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
-        mTouchQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;
+        TouchCoordQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
+        TouchCoordQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;
 
         mProjectionInverseMatrix = new float[16];
         mViewInverseMatrix = new float[16];
@@ -246,9 +251,12 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         else
             GLES20.glFrontFace(GLES20.GL_CCW); // Back camera
 
+        mIsTextureActive = state.getNumTrackableResults() > 0;
+
         // Did we find any trackables this frame?
         for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++)
         {
+
             TrackableResult result = state.getTrackableResult(tIdx);
             Trackable trackable = result.getTrackable();
             //printUserData(trackable);
@@ -304,7 +312,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 GLES20.glDisableVertexAttribArray(textureCoordHandle);
 
                 // Also set TouchCoordQueue texture size
-                mTouchQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
+                TouchCoordQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
 
                 // Eman
                 // Now draw the debug RAY!!!
@@ -359,7 +367,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     public Texture getCanvasTexture()
     {
         // Do the whole texture getting here
-        if(mTouchQueue.getSize() > 0)
+        if(mTouchQueue.getSize() > 0 && mIsTextureActive)
         {
             mCanvasTexture.updatePixels();
         }
@@ -389,8 +397,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc, RGBColor color, double brushSize)
     {
-        this.mTouchQueue.setColor(color);
-        this.mTouchQueue.setBrushSize(brushSize);
+        mTouchQueue.setColor(color);
+        mTouchQueue.setBrushSize(brushSize);
 
         // DON'T ADD A LINE
 //        addTouchToQueue(tc);
@@ -418,7 +426,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         else
         {
             // If there is no entry add the first one
-            this.mTouchQueue.push(tc);
+            mTouchQueue.push(tc);
             mLastEntryX = tc.getX();
             mLastEntryY = tc.getY();
         }

@@ -3,6 +3,7 @@ package ciu196.chalmers.se.armuseum;
 import android.graphics.Point;
 import android.util.Log;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,6 +35,8 @@ public class PaintManager {
     private DatabaseReference mFirebaseDatabaseReference;
 
     private Queue<Stroke> strokeBacklog;
+
+    private TouchCoordQueue mTouchQueue = TouchCoordQueue.getInstance();
 
     public PaintManager(PaintRenderer renderer) {
         this.renderer = renderer;
@@ -69,6 +72,7 @@ public class PaintManager {
     }
 
     private void lineTo(Point point, boolean isDatabaseCall) {
+        Log.v(LOGTAG, "Drawing line:  " + point);
         renderer.addTouchToQueue(new TouchCoord(point.x, point.y));
 
         if (!isDatabaseCall) {
@@ -82,7 +86,7 @@ public class PaintManager {
     }
 
     private void finishLine(boolean isDatabaseCall) {
-        TouchCoordQueue.reset();
+        mTouchQueue.reset();
         renderer.clearTrail();
 
         if (!isDatabaseCall) {
@@ -114,11 +118,54 @@ public class PaintManager {
         mFirebaseDatabaseReference.child(STROKE_PATH_CHILD).push().setValue(stroke);
     }
 
+    ChildEventListener strokeAddedListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
+
+                Stroke stroke = dataSnapshot.getValue(Stroke.class);
+//            Log.v(LOGTAG, "Stroke added: " + stroke);
+
+                    // Renderer is not yet initialized, add strokes to backlog to be rendered later
+//                    if (renderer == null || renderer.getCanvasTexture() == null || !renderer.mIsTextureActive) {
+//                        Log.v(LOGTAG, "Stroke added to backlog: " + stroke);
+//                        strokeBacklog.add(stroke);
+//
+//                    } else {
+//                        drawStrokesInBacklog();
+                        Log.v(LOGTAG, "Stroke sent for drawing: " + stroke);
+                        drawStroke(stroke);
+//                    }
+//            }
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//            Log.v(LOGTAG, "child changed");
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    };
+
     ValueEventListener drawingDatabaseListener = new ValueEventListener()
     {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot)
         {
+            Log.v(LOGTAG, "Datachanged: " + dataSnapshot);
             // Database listener firing for every point added
             if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
             {
@@ -140,6 +187,8 @@ public class PaintManager {
             }
         }
 
+
+
         @Override
         public void onCancelled(DatabaseError databaseError)
         {
@@ -148,8 +197,12 @@ public class PaintManager {
     };
 
     public void connectToDb() {
+        // Get all the previous strokes from the db
 //        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
-        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+//        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
+//        mFirebaseDatabaseReference.addChildEventListener(strokeAddedListener);
+        DatabaseReference strokeChild = mFirebaseDatabaseReference.child(STROKE_PATH_CHILD);
+        strokeChild.addChildEventListener(strokeAddedListener);
     }
 
     public void setRenderer(PaintRenderer renderer) {
