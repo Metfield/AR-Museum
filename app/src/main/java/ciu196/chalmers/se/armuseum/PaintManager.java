@@ -36,6 +36,8 @@ public class PaintManager {
 
     private Queue<Stroke> strokeBacklog;
 
+    private TouchCoordQueue mTouchQueue = TouchCoordQueue.getInstance();
+
     public PaintManager(PaintRenderer renderer) {
         this.renderer = renderer;
         currentColor = new RGBColor(0, 0, 0);
@@ -83,7 +85,7 @@ public class PaintManager {
     }
 
     private void finishLine(boolean isDatabaseCall) {
-        TouchCoordQueue.reset();
+        mTouchQueue.reset();
         renderer.clearTrail();
 
         if (!isDatabaseCall) {

@@ -96,7 +96,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
-//    private TouchCoordQueue mTouchQueue;
+    private TouchCoordQueue mTouchQueue;
 
     private static final float OBJECT_SCALE_FLOAT = 200.0f;
 
@@ -107,6 +107,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         // SampleAppRenderer used to encapsulate the use of RenderingPrimitives setting
         // the device mode AR/VR and stereo mode
         mSampleAppRenderer = new SampleAppRenderer(this, Device.MODE.MODE_AR, false);
+
+        mTouchQueue = TouchCoordQueue.getInstance();
     }
     
     
@@ -359,7 +361,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     public Texture getCanvasTexture()
     {
         // Do the whole texture getting here
-        if(TouchCoordQueue.getSize() > 0)
+        if(mTouchQueue.getSize() > 0)
         {
             mCanvasTexture.updatePixels();
         }
@@ -389,8 +391,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc, RGBColor color, double brushSize)
     {
-        TouchCoordQueue.setColor(color);
-        TouchCoordQueue.setBrushSize(brushSize);
+        mTouchQueue.setColor(color);
+        mTouchQueue.setBrushSize(brushSize);
 
         // DON'T ADD A LINE
 //        addTouchToQueue(tc);
@@ -418,7 +420,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         else
         {
             // If there is no entry add the first one
-            TouchCoordQueue.push(tc);
+            mTouchQueue.push(tc);
             mLastEntryX = tc.getX();
             mLastEntryY = tc.getY();
         }
@@ -471,7 +473,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
         for (int i=0;i<=longest;i++)
         {
-            TouchCoordQueue.push(new TouchCoord(x, y));
+            mTouchQueue.push(new TouchCoord(x, y));
 //            mActivity.getDrawingPath().addPoint(new Point(x, y));
 
             numerator += shortest ;
