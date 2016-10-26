@@ -96,7 +96,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
-    private TouchCoordQueue mTouchQueue;
+//    private TouchCoordQueue mTouchQueue;
 
     private static final float OBJECT_SCALE_FLOAT = 200.0f;
 
@@ -212,8 +212,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         VIEWPORT_WIDTH = tempPoint.x;
         VIEWPORT_HEIGHT = tempPoint.y;
 
-        mTouchQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
-        mTouchQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;
+        TouchCoordQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
+        TouchCoordQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;
 
         mProjectionInverseMatrix = new float[16];
         mViewInverseMatrix = new float[16];
@@ -304,7 +304,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 GLES20.glDisableVertexAttribArray(textureCoordHandle);
 
                 // Also set TouchCoordQueue texture size
-                mTouchQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
+                TouchCoordQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
 
                 // Eman
                 // Now draw the debug RAY!!!
@@ -359,7 +359,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     public Texture getCanvasTexture()
     {
         // Do the whole texture getting here
-        if(mTouchQueue.getSize() > 0)
+        if(TouchCoordQueue.getSize() > 0)
         {
             mCanvasTexture.updatePixels();
         }
@@ -389,8 +389,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc, RGBColor color, double brushSize)
     {
-        this.mTouchQueue.setColor(color);
-        this.mTouchQueue.setBrushSize(brushSize);
+        TouchCoordQueue.setColor(color);
+        TouchCoordQueue.setBrushSize(brushSize);
 
         // DON'T ADD A LINE
 //        addTouchToQueue(tc);
@@ -418,7 +418,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         else
         {
             // If there is no entry add the first one
-            this.mTouchQueue.push(tc);
+            TouchCoordQueue.push(tc);
             mLastEntryX = tc.getX();
             mLastEntryY = tc.getY();
         }
@@ -471,7 +471,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
         for (int i=0;i<=longest;i++)
         {
-            mTouchQueue.push(new TouchCoord(x, y));
+            TouchCoordQueue.push(new TouchCoord(x, y));
 //            mActivity.getDrawingPath().addPoint(new Point(x, y));
 
             numerator += shortest ;

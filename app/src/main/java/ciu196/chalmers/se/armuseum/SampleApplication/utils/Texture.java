@@ -43,7 +43,7 @@ public class Texture
     public byte[] mDataBytes;
 
     public int mBufferSize;
-    private TouchCoordQueue mTouchQueue;
+//    private TouchCoordQueue mTouchQueue;
 
 
     private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
@@ -151,13 +151,13 @@ public class Texture
         int offset;
         int memPitch;
 
-        setBrushColor(mTouchQueue.getColor());
+        setBrushColor(TouchCoordQueue.getColor());
         // TODO: Use brush size
-        mBrushSize = mTouchQueue.getBrushSize();
+        mBrushSize = TouchCoordQueue.getBrushSize();
 
-        while(mTouchQueue.getSize() > 0)
+        while(TouchCoordQueue.getSize() > 0)
         {
-            tc = mTouchQueue.pop();
+            tc = TouchCoordQueue.pop();
 
             if(tc == null)
             {
