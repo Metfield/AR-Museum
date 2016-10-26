@@ -72,7 +72,7 @@ public class PaintManager {
     }
 
     private void lineTo(Point point, boolean isDatabaseCall) {
-        Log.v(LOGTAG, "Drawing line:  " + point);
+//        Log.v(LOGTAG, "Drawing line:  " + point);
         renderer.addTouchToQueue(new TouchCoord(point.x, point.y));
 
         if (!isDatabaseCall) {
@@ -104,6 +104,7 @@ public class PaintManager {
         SerializablePath path = stroke.getSerializablePath();
 
         if (path != null) {
+
             Point start = stroke.getSerializablePath().getStartingPoint();
             startLine(start, color, brushSize, true);
 
@@ -160,41 +161,39 @@ public class PaintManager {
         }
     };
 
-    ValueEventListener drawingDatabaseListener = new ValueEventListener()
-    {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot)
-        {
-            Log.v(LOGTAG, "Datachanged: " + dataSnapshot);
-            // Database listener firing for every point added
-            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
-            {
-                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
-
-                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-                while (iterator.hasNext())
-                {
-                    Stroke stroke = iterator.next().getValue(Stroke.class);
-
-                    // Renderer is not yet initialized, add strokes to backlog to be rendered later
-                    if (renderer == null || renderer.getCanvasTexture() == null) {
-                        strokeBacklog.add(stroke);
-                    } else {
-                        drawStrokesInBacklog();
-                        drawStroke(stroke);
-                    }
-                }
-            }
-        }
-
-
-
-        @Override
-        public void onCancelled(DatabaseError databaseError)
-        {
-            Log.w(LOGTAG, databaseError.toException());
-        }
-    };
+//    ValueEventListener drawingDatabaseListener = new ValueEventListener()
+//    {
+//        @Override
+//        public void onDataChange(DataSnapshot dataSnapshot)
+//        {
+//            Log.v(LOGTAG, "Datachanged: " + dataSnapshot);
+//            // Database listener firing for every point added
+//            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
+//            {
+//                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
+//
+//                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
+//                while (iterator.hasNext())
+//                {
+//                    Stroke stroke = iterator.next().getValue(Stroke.class);
+//
+//                    // Renderer is not yet initialized, add strokes to backlog to be rendered later
+//                    if (renderer == null || renderer.getCanvasTexture() == null) {
+//                        strokeBacklog.add(stroke);
+//                    } else {
+//                        drawStrokesInBacklog();
+//                        drawStroke(stroke);
+//                    }
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void onCancelled(DatabaseError databaseError)
+//        {
+//            Log.w(LOGTAG, databaseError.toException());
+//        }
+//    };
 
     public void connectToDb() {
         // Get all the previous strokes from the db

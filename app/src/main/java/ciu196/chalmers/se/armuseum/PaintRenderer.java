@@ -366,10 +366,13 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public Texture getCanvasTexture()
     {
+        Log.v(LOGTAG, "Coord queue:  " + mTouchQueue.getSize());
         // Do the whole texture getting here
         if(mTouchQueue.getSize() > 0 && mIsTextureActive)
         {
+            Log.v(LOGTAG, "Popping coords ");
             mCanvasTexture.updatePixels();
+
         }
 
        /* TouchCoord tc;
@@ -400,6 +403,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         mTouchQueue.setColor(color);
         mTouchQueue.setBrushSize(brushSize);
 
+        mTouchQueue.push(tc);
         // DON'T ADD A LINE
 //        addTouchToQueue(tc);
     }
