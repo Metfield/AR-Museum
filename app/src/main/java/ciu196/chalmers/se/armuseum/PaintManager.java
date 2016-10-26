@@ -72,6 +72,7 @@ public class PaintManager {
     }
 
     private void lineTo(Point point, boolean isDatabaseCall) {
+        Log.v(LOGTAG, "Drawing line:  " + point);
         renderer.addTouchToQueue(new TouchCoord(point.x, point.y));
 
         if (!isDatabaseCall) {
@@ -121,16 +122,20 @@ public class PaintManager {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 //            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
-                Log.v(LOGTAG, dataSnapshot.toString());
+
                 Stroke stroke = dataSnapshot.getValue(Stroke.class);
+//            Log.v(LOGTAG, "Stroke added: " + stroke);
 
                     // Renderer is not yet initialized, add strokes to backlog to be rendered later
-                    if (renderer == null || renderer.getCanvasTexture() == null) {
-                        strokeBacklog.add(stroke);
-                    } else {
-                        drawStrokesInBacklog();
+//                    if (renderer == null || renderer.getCanvasTexture() == null || !renderer.mIsTextureActive) {
+//                        Log.v(LOGTAG, "Stroke added to backlog: " + stroke);
+//                        strokeBacklog.add(stroke);
+//
+//                    } else {
+//                        drawStrokesInBacklog();
+                        Log.v(LOGTAG, "Stroke sent for drawing: " + stroke);
                         drawStroke(stroke);
-                    }
+//                    }
 //            }
         }
 
@@ -160,6 +165,7 @@ public class PaintManager {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot)
         {
+            Log.v(LOGTAG, "Datachanged: " + dataSnapshot);
             // Database listener firing for every point added
             if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
             {
@@ -192,7 +198,7 @@ public class PaintManager {
 
     public void connectToDb() {
         // Get all the previous strokes from the db
-        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
+//        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
 //        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
 //        mFirebaseDatabaseReference.addChildEventListener(strokeAddedListener);
         DatabaseReference strokeChild = mFirebaseDatabaseReference.child(STROKE_PATH_CHILD);

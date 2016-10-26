@@ -100,6 +100,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     private static final float OBJECT_SCALE_FLOAT = 200.0f;
 
+    // To know whether there is something we can draw on
+    boolean mIsTextureActive = false;
+
     public PaintRenderer(MainActivity activity, SampleApplicationSession session)
     {
         mActivity = activity;
@@ -248,9 +251,12 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         else
             GLES20.glFrontFace(GLES20.GL_CCW); // Back camera
 
+        mIsTextureActive = state.getNumTrackableResults() > 0;
+
         // Did we find any trackables this frame?
         for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++)
         {
+
             TrackableResult result = state.getTrackableResult(tIdx);
             Trackable trackable = result.getTrackable();
             //printUserData(trackable);
@@ -361,7 +367,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     public Texture getCanvasTexture()
     {
         // Do the whole texture getting here
-        if(mTouchQueue.getSize() > 0)
+        if(mTouchQueue.getSize() > 0 && mIsTextureActive)
         {
             mCanvasTexture.updatePixels();
         }
