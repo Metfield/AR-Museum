@@ -17,7 +17,6 @@ public class TouchCoordQueue
 
     private static TouchCoordQueue instance;
 
-
     public static TouchCoordQueue getInstance() {
         if (instance == null) {
             instance = new TouchCoordQueue();
@@ -32,8 +31,10 @@ public class TouchCoordQueue
 
     // Use Vector maybe?
     private Queue<TouchCoord> queue;
+
     public static int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
     public static int TEXTURE_SIZE;
+
     private RGBColor currentColor ;
     private double currentBrushSize;
 
