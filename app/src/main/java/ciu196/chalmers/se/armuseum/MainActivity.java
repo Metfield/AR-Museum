@@ -150,7 +150,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
         setupFirebase();
         login();
 
-        painter = new PaintManager(mRenderer);
+        painter = PaintManager.getInstance(mRenderer);
     }
 
 

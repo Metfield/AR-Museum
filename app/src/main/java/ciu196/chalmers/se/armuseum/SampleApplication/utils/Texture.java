@@ -170,8 +170,8 @@ public class Texture
             setBrushColor(tc.getColor());
 
             // Get u,v coordinates
-            u = tc.getU() * mChannels;
-            v = mHeight - tc.getV();
+            u = tc.getX() * mChannels;
+            v = mHeight - tc.getY();
 
 //            Log.e("blah","Raw v: " + v);
 

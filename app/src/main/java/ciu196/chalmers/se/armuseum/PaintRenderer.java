@@ -85,7 +85,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     boolean mModelsLoaded = false;
 
     // @Eman
-    private Texture mCanvasTexture;
+    public Texture mCanvasTexture;
 //    private RGBColor mCurrentBrushColor;
 
     // FUCK YOU ANDROID, YOU GIVE ME NO OTHER CHOICE!
@@ -222,8 +222,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         VIEWPORT_WIDTH = tempPoint.x;
         VIEWPORT_HEIGHT = tempPoint.y;
 
-        TouchCoordQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
-        TouchCoordQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;
+        /*TouchCoordQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
+        TouchCoordQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;*/
 
         mProjectionInverseMatrix = new float[16];
         mViewInverseMatrix = new float[16];
@@ -309,7 +309,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 GLES20.glEnableVertexAttribArray(textureCoordHandle);
 
                 // Also set TouchCoordQueue texture size
-                TouchCoordQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
+               // TouchCoordQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
 
                 // activate texture 0, bind it, and pass to shader
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -381,10 +381,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     public Texture getCanvasTexture()
     {
         // Do the whole texture getting here
-        if(mTouchQueue.getSize() > 0 && mTouchQueue.isReady())
+        if(mTouchQueue.getSize() > 0 && PaintManager.getInstance(this).isReady())
         {
             mCanvasTexture.updatePixels();
-
         }
 
        /* TouchCoord tc;
@@ -420,7 +419,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc)
     {
-        transformCoordinates(tc.getX(), tc.getY());
+        //transformCoordinates(tc.getX(), tc.getY());
 
         // Eman: Stupid fucking hack FUCK YOU JAVA
         // As long as there is a previous entry do this

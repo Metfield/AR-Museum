@@ -43,16 +43,12 @@ public class TouchCoord
         this.color = color;
     }
 
-    public int getU() { return TouchCoordQueue.convertX2U(x) - 1; }
-
-    public int getV() { return TouchCoordQueue.convertY2V(y) - 1; }
-
     public RGBColor getColor() {
         return color;
     }
 
     @Override
     public String toString() {
-        return "x: " + getX() + " y: " + getY() + " u: " + getU() + " v: " + getV();
+        return "x: " + getX() + " y: " + getY();
     }
 }

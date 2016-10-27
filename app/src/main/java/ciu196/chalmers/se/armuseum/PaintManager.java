@@ -1,21 +1,15 @@
 package ciu196.chalmers.se.armuseum;
 
 import android.graphics.Point;
-import android.util.Log;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
+
 
 /**
  * Created by johnpetersson on 2016-10-19.
@@ -34,7 +28,19 @@ public class PaintManager {
 
     private DatabaseReference mFirebaseDatabaseReference;
 
-    public PaintManager(PaintRenderer renderer) {
+    private static PaintManager mInstance;
+
+    public static PaintManager getInstance(PaintRenderer renderer)
+    {
+        if(mInstance == null)
+        {
+            mInstance = new PaintManager(renderer);
+        }
+
+        return mInstance;
+    }
+
+    private PaintManager(PaintRenderer renderer) {
         this.renderer = renderer;
         currentColor = new RGBColor(0, 0, 0);
         currentBrushSize = 20;
@@ -53,15 +59,17 @@ public class PaintManager {
         currentBrushSize = brushSize;
 
 
-        TouchCoord touchCoord = new TouchCoord(point.x, point.y, currentColor);
-        renderer.addTouchToQueue(touchCoord, currentBrushSize);
-
         // Don't save in database if the call was triggered from database listener
         if (!isDatabaseCall) {
+            // transform viewport coordinates to texture coordinates
+            point = convertToCanvasCoordinates(point);
+
             // For db
             drawingPath = new SerializablePath();
-            addTouchPointToDrawingPath(point);
+            addTexturePointToDrawingPath(point);
         }
+        TouchCoord tc = new TouchCoord(point.x, point.y, currentColor);
+        renderer.addTouchToQueue(tc, currentBrushSize);
     }
 
     public void lineTo(Point point) {
@@ -69,12 +77,17 @@ public class PaintManager {
     }
 
     private void lineTo(Point point, boolean isDatabaseCall) {
-        renderer.addTouchToQueue(new TouchCoord(point.x, point.y, currentColor));
+
 
         if (!isDatabaseCall) {
+            // transform viewport coordinates to texture coordinates
+            point = convertToCanvasCoordinates(point);
+
             // For db
-            addTouchPointToDrawingPath(point);
+            addTexturePointToDrawingPath(point);
         }
+        TouchCoord tc = new TouchCoord(point.x, point.y, currentColor);
+        renderer.addTouchToQueue(tc);
     }
 
     public void finishLine() {
@@ -155,14 +168,35 @@ public class PaintManager {
         this.renderer = renderer;
     }
 
-    private void addTouchPointToDrawingPath(Point touchedPoint) {
-        Point canvasPoint = convertToCanvasCoordinates(touchedPoint);
-        drawingPath.addPoint(canvasPoint);
+    private void addTexturePointToDrawingPath(Point texturePoint) {
+        //Point canvasPoint = convertToCanvasCoordinates(texturePoint);
+        drawingPath.addPoint(texturePoint);
     }
 
     // TODO: Make this function convert screen space into drawing space
-    private Point convertToCanvasCoordinates(Point point) {
+    private Point convertToCanvasCoordinates(Point point)
+    {
+        point.x = convertX2U(point.x);
+        point.y = convertY2V(point.y);
+
         return point;
+    }
+
+    private int convertX2U(int value)
+    {
+        double scale = (double)(getTextureSize()) / (renderer.VIEWPORT_WIDTH );
+        return (int)(value * scale);
+    }
+
+    private int convertY2V(int value)
+    {
+        double scale = (double)(getTextureSize()) / (renderer.VIEWPORT_HEIGHT);
+        return (int)(value * scale);
+    }
+
+    private double getTextureSize()
+    {
+        return renderer.mCanvasTexture.mWidth - 1;
     }
 
     // Converts canvas space into screen space for sending to drawing queue
@@ -170,6 +204,10 @@ public class PaintManager {
     // TODO: implement
     private Point convertToScreenCoordinates(Point point) {
         return point;
+    }
+
+    public boolean isReady() {
+        return getTextureSize() > 0 && renderer.VIEWPORT_HEIGHT > 0 && renderer.VIEWPORT_WIDTH > 0;
     }
 
 }

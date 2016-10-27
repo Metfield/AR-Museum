@@ -34,9 +34,6 @@ public class TouchCoordQueue
     // Use Vector maybe?
     private Queue<TouchCoord> queue;
 
-    public static int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
-    public static int TEXTURE_SIZE;
-
     private double currentBrushSize;
 
     public void push(TouchCoord tc)
@@ -55,18 +52,6 @@ public class TouchCoordQueue
         return queue.size();
     }
 
-    public static int convertX2U(int value)
-    {
-        double scale = (double)(TEXTURE_SIZE) / (VIEWPORT_WIDTH );
-        return (int)(value * scale);
-    }
-
-    public static int convertY2V(int value)
-    {
-        double scale = (double)(TEXTURE_SIZE) / (VIEWPORT_HEIGHT );
-        return (int)(value * scale);
-    }
-
     public double getBrushSize()
     {
         return currentBrushSize;
@@ -82,7 +67,5 @@ public class TouchCoordQueue
         currentBrushSize = 0;
     }
 
-    public boolean isReady() {
-        return TEXTURE_SIZE > 0 && VIEWPORT_HEIGHT > 0 && VIEWPORT_WIDTH > 0;
-    }
+
 }
