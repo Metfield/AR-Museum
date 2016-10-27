@@ -143,7 +143,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
 
         // Eman
         currentColor = DEFAULT_COLOR;
-        currentBrushSize = 20;
+        //currentBrushSize = 20;
 
 
         // Database
@@ -707,6 +707,11 @@ public class MainActivity extends Activity implements SampleApplicationControl {
         // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    public int getCurrentBrushSize()
+    {
+        return (int)currentBrushSize;
     }
 
 }
