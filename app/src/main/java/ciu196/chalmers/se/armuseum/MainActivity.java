@@ -59,7 +59,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 public class MainActivity extends Activity implements SampleApplicationControl {
     private static final String LOGTAG = "MainActivity";
 
-    private boolean dropDatabaseOnStart = false;
+    private boolean dropDatabaseOnStart = true;
 
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;

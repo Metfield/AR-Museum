@@ -434,12 +434,15 @@ public class SampleMath
         mIntersection = linePlaneIntersection(mLineStart, mLineEnd,
             planeCenter, planeNormal);
 
-        Log.e("blah", "LineStart: " + mLineStart.getData()[0] + " " +mLineStart.getData()[1] + " " + mLineStart.getData()[2]);
+        //Log.e("blah", "LineStart: " + mLineStart.getData()[0] + " " +mLineStart.getData()[1] + " " + mLineStart.getData()[2]);
 
         if (mIntersection == null)
             Log.e(LOGTAG, "No intersection with the plane");
-        else
+        else {
             Log.e(LOGTAG, "OMG COLLISION!");
+            Log.e("blah", "Intersection: " + mIntersection.getData()[0] + " " +mIntersection.getData()[1] + " " + mIntersection.getData()[2]);
+
+        }
     }
     
     

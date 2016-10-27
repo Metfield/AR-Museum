@@ -26,6 +26,8 @@ import com.vuforia.Tool;
 import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
 import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
+import com.vuforia.Vec2F;
+import com.vuforia.Vec3F;
 import com.vuforia.Vec4F;
 import com.vuforia.Vuforia;
 
@@ -267,6 +269,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             Matrix44F modelViewMatrix_Vuforia = Tool.convertPose2GLMatrix(result.getPose());
             float[] modelViewMatrix = modelViewMatrix_Vuforia.getData();
 
+            mModelViewMatrix = modelViewMatrix;
+
             // deal with the modelview and projection matrices
             float[] modelViewProjection = new float[16];
 
@@ -291,7 +295,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             // Eman: Get projection and view inverse
             Matrix.invertM(this.mProjectionInverseMatrix, 0, projectionMatrix, 0);
             Matrix.invertM(this.mViewInverseMatrix, 0, modelViewMatrix, 0);
-            mModelViewMatrix = modelViewMatrix;
+//            mModelViewMatrix = modelViewMatrix;
 
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
@@ -511,6 +515,37 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     // STILL HIGHLY UNSTABLE METHOD!!!!
     private float[] transformCoordinates(float x, float y)
     {
+        Log.i("touch", "TOUCH: " + x + " " + y);
+
+        Matrix44F projInverse = new Matrix44F();
+        projInverse.setData(mProjectionInverseMatrix);
+
+        Matrix44F modelView = new Matrix44F();
+        modelView.setData(mModelViewMatrix);
+
+
+        Log.i("inter", "Test right plane");
+        SampleMath.projectScreenPointToPlane(projInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, new Vec2F(x, y), new Vec3F(1, 0, 0), new Vec3F(-1, 0, 0));
+/*
+        Log.i("inter", "Test left plane");
+        SampleMath.projectScreenPointToPlane(projInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, new Vec2F(x, y), new Vec3F(-1, 0, 0), new Vec3F(1, 0, 0));
+
+        Log.i("inter", "Test upper plane");
+        SampleMath.projectScreenPointToPlane(projInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, new Vec2F(x, y), new Vec3F(0, 1, 0), new Vec3F(0, -1, 0));
+
+        Log.i("inter", "Test lower plane");
+        SampleMath.projectScreenPointToPlane(projInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, new Vec2F(x, y), new Vec3F(0, -1, 0), new Vec3F(0, 1, 0));
+
+        //Log.i("inter", "Test right plane");
+
+
+*/
+
+
+
+/*
+
+
         // Transform touch coordinates to viewport space [-1, 1]
         Vec4 viewport_coords = new Vec4( (2.0f * x) / TouchCoordQueue.VIEWPORT_WIDTH - 1.0f,
                 1.0f - (2.0f * y) / TouchCoordQueue.VIEWPORT_HEIGHT,
@@ -574,7 +609,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         /*mDebugRay.setOrigin(adjustedCoords[0], adjustedCoords[1], adjustedCoords[2] + 10);
         mDebugRay.setDestination(adjustedCoords[0], adjustedCoords[1], -10);*/
 
-        float[] ray_dir = new float[] {0.0f, 0.0f, -1.0f};
+      /*  float[] ray_dir = new float[] {0.0f, 0.0f, -1.0f};
         float[] n = new float[] {0.0f, 0.0f, 1.0f};
 
         // Get t distance
@@ -601,7 +636,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         canvas_coords[1] = ray_origin[1] + ray_dir[1] * t;
         canvas_coords[2] = ray_origin[2] + ray_dir[2] * t;
 
-
+*/
         /*Log.e("cock", "CanvasCoords: " + canvas_coords[0]
                 + " " + canvas_coords[1]
                 + " " + canvas_coords[2]);*/
