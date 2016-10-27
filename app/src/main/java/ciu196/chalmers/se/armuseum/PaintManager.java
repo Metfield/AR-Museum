@@ -56,6 +56,7 @@ public class PaintManager {
         currentColor = color;
         currentBrushSize = brushSize;
 
+
         TouchCoord touchCoord = new TouchCoord(point.x, point.y);
         renderer.addTouchToQueue(touchCoord, currentColor, currentBrushSize);
 
@@ -73,6 +74,7 @@ public class PaintManager {
 
     private void lineTo(Point point, boolean isDatabaseCall) {
 //        Log.v(LOGTAG, "Drawing line:  " + point);
+
         renderer.addTouchToQueue(new TouchCoord(point.x, point.y));
 
         if (!isDatabaseCall) {
@@ -86,7 +88,6 @@ public class PaintManager {
     }
 
     private void finishLine(boolean isDatabaseCall) {
-        mTouchQueue.reset();
         renderer.clearTrail();
 
         if (!isDatabaseCall) {

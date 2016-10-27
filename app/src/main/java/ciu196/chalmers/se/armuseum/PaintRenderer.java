@@ -52,7 +52,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.Vec4;
 // The renderer class for the ImageTargets sample. 
 public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererControl
 {
-    private static final String LOGTAG = "ImageTargetRenderer";
+    private static final String LOGTAG = "PaintRenderer";
 
     private final int CANVAS_TEXTURE = 0;
 
@@ -366,7 +366,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public Texture getCanvasTexture()
     {
-        Log.v(LOGTAG, "Coord queue:  " + mTouchQueue.getSize());
+//        Log.v(LOGTAG, "Coord queue:  " + mTouchQueue.getSize());
         // Do the whole texture getting here
         if(mTouchQueue.getSize() > 0 && mIsTextureActive)
         {

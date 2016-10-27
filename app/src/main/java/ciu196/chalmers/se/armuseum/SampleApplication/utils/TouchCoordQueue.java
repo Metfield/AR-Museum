@@ -89,6 +89,6 @@ public class TouchCoordQueue
     {
         currentBrushSize = 0;
         currentColor = DEFAULT_COLOR;
-        queue.clear();
+//        queue.clear();
     }
 }
