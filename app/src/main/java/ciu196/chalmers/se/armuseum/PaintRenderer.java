@@ -37,10 +37,10 @@ import javax.microedition.khronos.opengles.GL10;
 import ciu196.chalmers.se.armuseum.SampleApplication.Coordinate;
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CanvasMesh;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.Pixel;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LineShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.Pixel;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.RayMesh;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplication3DModel;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleMath;
@@ -422,7 +422,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         // As long as there is a previous entry do this
         if(!isLastEntryNull())
         {
-            createLineAndAddToQueue(mLastEntry, coord);
+            createLineAndBloat(mLastEntry, coord);
 
             mLastEntry = coord;
         }
@@ -448,68 +448,36 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             return true;
     }
 
-    private void bloatAndAdd(Coordinate coord) {
-        int x = coord.x;
-        int y = coord.y;
+    private void bloatAndAdd(Coordinate coord)
+    {
+        int center_x = coord.x;
+        int center_y = coord.y;
+
+        Coordinate dest = coord;
+
         RGBColor color = coord.getColor();
 
-        boolean isCornerKewl = true;
+        // Pixels to plot
+        int x, y;
 
-        int dx, dy;
+        int radius = PaintManager.getInstance(this).getCurrentBrushSize();
+        int radius_squared = radius * radius;
 
-        for(int diff = 1; diff <= PaintManager.getInstance(this).getCurrentBrushSize(); diff++)
+        mTouchQueue.push(new Pixel(center_x, center_y + radius, color));
+        mTouchQueue.push(new Pixel(center_x, center_y - radius, color));
+
+        for (x = 1; x <= radius; x++)
         {
-            // Right pixel
-            dx = x + diff;
-            if(!isOutOfBounds(dx))
-            {
-                mTouchQueue.push(new Pixel(dx, y, color));
-            }
-            else
-            {
-                isCornerKewl = false;
-            }
-
-            // Upper pixel
-            dy = y + diff;
-            if(!isOutOfBounds(dy))
-            {
-                mTouchQueue.push(new Pixel(x, dy, color));
-            }
-            else
-            {
-                isCornerKewl = false;
-            }
-
-            // Left pixel
-            dx = x - diff;
-            if(!isOutOfBounds(dx))
-                mTouchQueue.push(new Pixel(dx, y, color));
-
-
-
-            // Lower pixel
-            dy = y - diff;
-            if(!isOutOfBounds(dy))
-                mTouchQueue.push(new Pixel(x, dy, color));
-
-            // Upper right pixel
-
-            // Upper left pixel
-
-            // Lower right pixel
-
-            // Lower left pixel
-
-
-
+            y = (int) (Math.sqrt(radius_squared - x*x) + 0.5);
+            mTouchQueue.push(new Pixel(center_x + x, center_y + y, color));
+            mTouchQueue.push(new Pixel(center_x + x, center_y - y, color));
+            mTouchQueue.push(new Pixel(center_x - x, center_y + y, color));
+            mTouchQueue.push(new Pixel(center_x - x, center_y - y, color));
         }
     }
 
-    private void createLineAndAddToQueue(Coordinate origin, Coordinate destination)
+    private void createLineAndBloat(Coordinate origin, Coordinate destination)
     {
-
-
         int x = origin.x;
         int y = origin.y;
         int x2 = destination.x;
@@ -538,11 +506,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         }
 
         int numerator = longest >> 1 ;
-
-        // These hold brush pixels
-        int dx, dy;
-
-        boolean isCornerKewl = true;
 
         for (int i=0;i<=longest;i++)
         {
