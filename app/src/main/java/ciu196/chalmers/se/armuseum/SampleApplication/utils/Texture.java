@@ -43,7 +43,7 @@ public class Texture
     public byte[] mDataBytes;
 
     public int mBufferSize;
-    private TouchCoordQueue mTouchQueue;
+    private TouchCoordQueue mTouchQueue = TouchCoordQueue.getInstance();
 
 
     private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
