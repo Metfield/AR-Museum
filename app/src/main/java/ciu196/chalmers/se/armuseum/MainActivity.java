@@ -112,7 +112,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
 
     //Brush size picker
     private SeekBar sizeSeekBar;
-    private double maxBrushSize = 10;
+    private int maxBrushSize = 10;
     private TextView brushSizeText;
 
     // Called when the activity first starts or the user navigates back to an
@@ -627,7 +627,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
         sizeSeekBar = (SeekBar) findViewById(R.id.seekBar);
         brushSizeText = (TextView)findViewById(R.id.BrushSize);
         brushSizeText.setText(Double.toString(currentBrushSize));
-        sizeSeekBar.setMax((int) maxBrushSize);
+        sizeSeekBar.setMax(maxBrushSize);
 
         sizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -637,7 +637,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
                     sizeSeekBar.setProgress(1);
                 }
                 currentBrushSize = sizeSeekBar.getProgress();
-                brushSizeText.setText(Double.toString(currentBrushSize));
+                brushSizeText.setText(Integer.toString(currentBrushSize));
             }
 
             @Override
