@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.logging.Logger;
 
 import ciu196.chalmers.se.armuseum.MainActivity;
 import ciu196.chalmers.se.armuseum.PaintRenderer;
@@ -117,7 +118,7 @@ public class Texture
 
         texture.mBufferSize = texture.mData.position();
         texture.mData.rewind();
-        
+
         // Cleans variables
         dataBytes = null;
         data = null;
@@ -151,7 +152,8 @@ public class Texture
         int offset;
         int memPitch;
 
-        setBrushColor(mTouchQueue.getColor());
+//        setBrushColor(mTouchQueue.getColor());
+
         // TODO: Use brush size
         mBrushSize = mTouchQueue.getBrushSize();
 
@@ -161,8 +163,11 @@ public class Texture
 
             if(tc == null)
             {
+                Log.v(LOGTAG, "Touchcoordinate null when popping");
                 return;
             }
+
+            setBrushColor(tc.getColor());
 
             // Get u,v coordinates
             u = tc.getU() * mChannels;

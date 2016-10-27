@@ -5,18 +5,20 @@ import android.os.Debug;
 import android.util.Log;
 
 import ciu196.chalmers.se.armuseum.PaintRenderer;
+import ciu196.chalmers.se.armuseum.RGBColor;
 
 /**
  * Created by taich on 10/10/2016.
  */
 public class TouchCoord
 {
-    protected int x, y;
-    protected int u, v;
+    private int x, y;
+    private RGBColor color;
 
-    public TouchCoord(int x, int y)
+    public TouchCoord(int x, int y, RGBColor color)
     {
         set(x, y);
+        this.color = color;
     }
 
     public int getX()
@@ -34,18 +36,23 @@ public class TouchCoord
     {
         this.x = x;
         this.y = y;
-
-        this.u =  TouchCoordQueue.convertX2U(x) - 1;
-        this.v =  TouchCoordQueue.convertY2V(y) - 1;
     }
 
-    public int getU()
-    {
-        return this.u;
+    public void set(int x, int y, RGBColor color) {
+        this.set(x, y);
+        this.color = color;
     }
 
-    public int getV()
-    {
-        return this.v;
+    public int getU() { return TouchCoordQueue.convertX2U(x) - 1; }
+
+    public int getV() { return TouchCoordQueue.convertY2V(y) - 1; }
+
+    public RGBColor getColor() {
+        return color;
+    }
+
+    @Override
+    public String toString() {
+        return "x: " + getX() + " y: " + getY() + " u: " + getU() + " v: " + getV();
     }
 }

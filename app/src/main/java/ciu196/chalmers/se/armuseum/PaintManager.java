@@ -34,16 +34,12 @@ public class PaintManager {
 
     private DatabaseReference mFirebaseDatabaseReference;
 
-    private Queue<Stroke> strokeBacklog;
-
-    private TouchCoordQueue mTouchQueue = TouchCoordQueue.getInstance();
-
     public PaintManager(PaintRenderer renderer) {
         this.renderer = renderer;
         currentColor = new RGBColor(0, 0, 0);
         currentBrushSize = 20;
 
-        strokeBacklog = new LinkedList();
+//        strokeBacklog = new LinkedList();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
@@ -57,14 +53,14 @@ public class PaintManager {
         currentBrushSize = brushSize;
 
 
-        TouchCoord touchCoord = new TouchCoord(point.x, point.y);
-        renderer.addTouchToQueue(touchCoord, currentColor, currentBrushSize);
+        TouchCoord touchCoord = new TouchCoord(point.x, point.y, currentColor);
+        renderer.addTouchToQueue(touchCoord, currentBrushSize);
 
         // Don't save in database if the call was triggered from database listener
         if (!isDatabaseCall) {
             // For db
             drawingPath = new SerializablePath();
-            drawingPath.addPoint(point);
+            addTouchPointToDrawingPath(point);
         }
     }
 
@@ -73,13 +69,11 @@ public class PaintManager {
     }
 
     private void lineTo(Point point, boolean isDatabaseCall) {
-//        Log.v(LOGTAG, "Drawing line:  " + point);
-
-        renderer.addTouchToQueue(new TouchCoord(point.x, point.y));
+        renderer.addTouchToQueue(new TouchCoord(point.x, point.y, currentColor));
 
         if (!isDatabaseCall) {
             // For db
-            drawingPath.addPoint(point);
+            addTouchPointToDrawingPath(point);
         }
     }
 
@@ -125,25 +119,13 @@ public class PaintManager {
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 //            if (dataSnapshot.child(STROKE_PATH_CHILD).exists()) {
 
-                Stroke stroke = dataSnapshot.getValue(Stroke.class);
-//            Log.v(LOGTAG, "Stroke added: " + stroke);
-
-                    // Renderer is not yet initialized, add strokes to backlog to be rendered later
-//                    if (renderer == null || renderer.getCanvasTexture() == null || !renderer.mIsTextureActive) {
-//                        Log.v(LOGTAG, "Stroke added to backlog: " + stroke);
-//                        strokeBacklog.add(stroke);
-//
-//                    } else {
-//                        drawStrokesInBacklog();
-                        Log.v(LOGTAG, "Stroke sent for drawing: " + stroke);
-                        drawStroke(stroke);
-//                    }
-//            }
+            Stroke stroke = dataSnapshot.getValue(Stroke.class);
+            drawStroke(stroke);
         }
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//            Log.v(LOGTAG, "child changed");
+
         }
 
         @Override
@@ -162,45 +144,9 @@ public class PaintManager {
         }
     };
 
-//    ValueEventListener drawingDatabaseListener = new ValueEventListener()
-//    {
-//        @Override
-//        public void onDataChange(DataSnapshot dataSnapshot)
-//        {
-//            Log.v(LOGTAG, "Datachanged: " + dataSnapshot);
-//            // Database listener firing for every point added
-//            if (dataSnapshot.child(STROKE_PATH_CHILD).exists())
-//            {
-//                Iterable<DataSnapshot> savedDrawPaths = dataSnapshot.child(STROKE_PATH_CHILD).getChildren();
-//
-//                Iterator<DataSnapshot> iterator = savedDrawPaths.iterator();
-//                while (iterator.hasNext())
-//                {
-//                    Stroke stroke = iterator.next().getValue(Stroke.class);
-//
-//                    // Renderer is not yet initialized, add strokes to backlog to be rendered later
-//                    if (renderer == null || renderer.getCanvasTexture() == null) {
-//                        strokeBacklog.add(stroke);
-//                    } else {
-//                        drawStrokesInBacklog();
-//                        drawStroke(stroke);
-//                    }
-//                }
-//            }
-//        }
-//
-//        @Override
-//        public void onCancelled(DatabaseError databaseError)
-//        {
-//            Log.w(LOGTAG, databaseError.toException());
-//        }
-//    };
-
     public void connectToDb() {
         // Get all the previous strokes from the db
 //        mFirebaseDatabaseReference.addListenerForSingleValueEvent(drawingDatabaseListener);
-//        mFirebaseDatabaseReference.addValueEventListener(drawingDatabaseListener);
-//        mFirebaseDatabaseReference.addChildEventListener(strokeAddedListener);
         DatabaseReference strokeChild = mFirebaseDatabaseReference.child(STROKE_PATH_CHILD);
         strokeChild.addChildEventListener(strokeAddedListener);
     }
@@ -209,10 +155,21 @@ public class PaintManager {
         this.renderer = renderer;
     }
 
-    private void drawStrokesInBacklog() {
-        while(!strokeBacklog.isEmpty()) {
-            drawStroke(strokeBacklog.poll());
-        }
+    private void addTouchPointToDrawingPath(Point touchedPoint) {
+        Point canvasPoint = convertToCanvasCoordinates(touchedPoint);
+        drawingPath.addPoint(canvasPoint);
+    }
+
+    // TODO: Make this function convert screen space into drawing space
+    private Point convertToCanvasCoordinates(Point point) {
+        return point;
+    }
+
+    // Converts canvas space into screen space for sending to drawing queue
+    // Should maybe be in renderer
+    // TODO: implement
+    private Point convertToScreenCoordinates(Point point) {
+        return point;
     }
 
 }
