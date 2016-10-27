@@ -50,8 +50,6 @@ public class TouchCoordQueue
     public TouchCoord pop()
     {
         TouchCoord tc = queue.poll();
-        Log.v(LOGTAG, tc.toString());
-
         return tc;
     }
 
