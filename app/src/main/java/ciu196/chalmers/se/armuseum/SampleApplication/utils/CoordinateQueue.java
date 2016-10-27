@@ -1,35 +1,31 @@
 package ciu196.chalmers.se.armuseum.SampleApplication.utils;
 
-import android.util.Log;
-
 import java.util.Queue;
-import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
 
 import ciu196.chalmers.se.armuseum.RGBColor;
 
 /**
- * Created by taich on 10/10/2016.
+ * Created by johnpetersson on 2016-10-27.
  */
-public class TouchCoordQueue extends CoordinateQueue
-{
-    private static final String LOGTAG = "TouchCoordQueue";
+public class CoordinateQueue {
+    private static final String LOGTAG = "CoordinateQueue";
 
     private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
     //    private static final double DEFAULT_BRUSH_SIZE = 20;
 
-    private static TouchCoordQueue instance;
+    private static CoordinateQueue instance;
 
-    public static TouchCoordQueue getInstance() {
+    public static CoordinateQueue getInstance() {
         if (instance == null) {
-            instance = new TouchCoordQueue();
+            instance = new CoordinateQueue();
         }
         return instance;
     }
 
-    private TouchCoordQueue() {
-        super();
+    CoordinateQueue() {
+        queue = new LinkedBlockingQueue<>();
+        currentColor = DEFAULT_COLOR;
     }
 
     // Use Vector maybe?
@@ -41,43 +37,43 @@ public class TouchCoordQueue extends CoordinateQueue
     private RGBColor currentColor ;
     private double currentBrushSize;
 
-    public void push(TouchCoord tc)
+    public void push(TouchCoord coordinate)
     {
-        queue.add(tc);
+        queue.add(coordinate);
     }
 
     public TouchCoord pop()
     {
-        TouchCoord tc = queue.poll();
-        return tc;
+        TouchCoord coordinate = queue.poll();
+        return coordinate;
     }
 
     public int getSize()
     {
         return queue.size();
     }
+//
+//    public static int convertX2U(int value)
+//    {
+//        double scale = (double)(TEXTURE_SIZE) / (VIEWPORT_WIDTH );
+//        return (int)(value * scale);
+//    }
+//
+//    public static int convertY2V(int value)
+//    {
+//        double scale = (double)(TEXTURE_SIZE) / (VIEWPORT_HEIGHT );
+//        return (int)(value * scale);
+//    }
 
-    public static int convertX2U(int value)
-    {
-        double scale = (double)(TEXTURE_SIZE) / (VIEWPORT_WIDTH );
-        return (int)(value * scale);
-    }
-
-    public static int convertY2V(int value)
-    {
-        double scale = (double)(TEXTURE_SIZE) / (VIEWPORT_HEIGHT );
-        return (int)(value * scale);
-    }
-
-    public RGBColor getColor()
-    {
-        return currentColor;
-    }
-
-    public void setColor(RGBColor color)
-    {
-        currentColor = color;
-    }
+//    public RGBColor getColor()
+//    {
+//        return currentColor;
+//    }
+//
+//    public void setColor(RGBColor color)
+//    {
+//        currentColor = color;
+//    }
 
     public double getBrushSize()
     {

@@ -35,6 +35,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CanvasMesh;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.Coordinate;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeObject;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LineShaders;
@@ -405,7 +406,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         mTouchQueue.push(tc);
     }
 
-    public void addTouchToQueue(TouchCoord tc)
+    public void addTouchToQueue(Coordinate tc)
     {
         //transformCoordinates(tc.getX(), tc.getY());
 
