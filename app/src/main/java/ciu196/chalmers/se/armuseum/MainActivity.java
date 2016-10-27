@@ -108,7 +108,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
 
     // Drawingpath
     private RGBColor currentColor;
-    private double currentBrushSize = 1.0;
+    private int currentBrushSize = 1;
 
     private static final RGBColor DEFAULT_COLOR = new RGBColor(20, 20, 20);
 
@@ -711,9 +711,6 @@ public class MainActivity extends Activity implements SampleApplicationControl {
         decorView.setSystemUiVisibility(uiOptions);
     }
 
-    public int getCurrentBrushSize()
-    {
-        return (int)currentBrushSize;
-    }
+
 
 }

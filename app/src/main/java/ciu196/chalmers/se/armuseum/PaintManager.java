@@ -8,6 +8,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import ciu196.chalmers.se.armuseum.SampleApplication.Coordinate;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Pixel;
 
 
@@ -22,7 +23,7 @@ public class PaintManager {
     private PaintRenderer renderer;
 
     private RGBColor currentColor;
-    private double currentBrushSize;
+    private int currentBrushSize;
 
     private SerializablePath drawingPath;
 
@@ -49,12 +50,12 @@ public class PaintManager {
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
-    public void startLine(Point point, RGBColor color, double brushSize) {
+    public void startLine(Point point, RGBColor color, int brushSize) {
         startLine(point, color, brushSize, false);
     }
 
     // Private version to avoid database loops
-    private void startLine(Point point, RGBColor color, double brushSize, boolean isDatabaseCall) {
+    private void startLine(Point point, RGBColor color, int brushSize, boolean isDatabaseCall) {
         currentColor = color;
         currentBrushSize = brushSize;
 
@@ -68,8 +69,9 @@ public class PaintManager {
             drawingPath = new SerializablePath();
             addTexturePointToDrawingPath(point);
         }
-        Pixel pixel = new Pixel(point, currentColor);
-        renderer.addTouchToQueue(pixel, currentBrushSize);
+
+        Coordinate coord = new Coordinate(point, currentBrushSize, currentColor);
+        renderer.startLineAt(coord);
     }
 
     public void lineTo(Point point) {
@@ -86,8 +88,8 @@ public class PaintManager {
             // For db
             addTexturePointToDrawingPath(point);
         }
-        Pixel pixel = new Pixel(point, currentColor);
-        renderer.addTouchToQueue(pixel);
+        Coordinate coord = new Coordinate(point, currentBrushSize, currentColor);
+        renderer.continueLineTo(coord);
     }
 
     public void finishLine() {
@@ -107,7 +109,7 @@ public class PaintManager {
     // Used to draw full strokes from the db
     private void drawStroke(Stroke stroke) {
         RGBColor color = stroke.getColor();
-        double brushSize = stroke.getBrushSize();
+        int brushSize = stroke.getBrushSize();
 
         SerializablePath path = stroke.getSerializablePath();
 
@@ -200,6 +202,11 @@ public class PaintManager {
 
     public boolean isReady() {
         return getTextureSize() > 0 && renderer.VIEWPORT_HEIGHT > 0 && renderer.VIEWPORT_WIDTH > 0;
+    }
+
+    public int getCurrentBrushSize()
+    {
+        return (int)currentBrushSize;
     }
 
 }

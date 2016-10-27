@@ -34,6 +34,7 @@ import java.util.Vector;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import ciu196.chalmers.se.armuseum.SampleApplication.Coordinate;
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CanvasMesh;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Pixel;
@@ -84,7 +85,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 //    private RGBColor mCurrentBrushColor;
 
     // FUCK YOU ANDROID, YOU GIVE ME NO OTHER CHOICE!
-    private int mLastEntryX, mLastEntryY;
+    private Coordinate mLastEntry;
 
     private float[] mProjectionInverseMatrix;
     private float[] mViewInverseMatrix;
@@ -225,7 +226,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         mModelViewMatrix = new float[16];
         mRayTransformMatrix = new float[16];
 
-        mLastEntryX = mLastEntryY = -1;
+        mLastEntry = null;
     }
     
     public void updateConfiguration()
@@ -404,15 +405,16 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         return mCanvasTexture;
     }
 
-    public void addTouchToQueue(Pixel tc, double brushSize)
+    public void startLineAt(Coordinate coord)
     {
 //        mTouchQueue.setColor(color);
-        mTouchQueue.setBrushSize(brushSize);
+        bloatAndAdd(coord);
 
-        mTouchQueue.push(tc);
+
+   //     mTouchQueue.push(coord);
     }
 
-    public void addTouchToQueue(Pixel tc)
+    public void continueLineTo(Coordinate coord)
     {
         //transformCoordinates(tc.x, tc.x);
 
@@ -420,46 +422,98 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         // As long as there is a previous entry do this
         if(!isLastEntryNull())
         {
-            // Set variables for line method
-            int x1 = mLastEntryX;
-            int y1 = mLastEntryY;
-            int x2 = tc.x;
-            int y2 = tc.y;
+            createLineAndAddToQueue(mLastEntry, coord);
 
-            createLineAndAddToQueue(x1, y1, x2, y2, tc.getColor());
-
-            mLastEntryX = tc.x;
-            mLastEntryY = tc.y;
+            mLastEntry = coord;
         }
         else
         {
             // If there is no entry add the first one
-            mTouchQueue.push(tc);
-            mLastEntryX = tc.x;
-            mLastEntryY = tc.y;
+            bloatAndAdd(coord);
+
+            mLastEntry = coord;
         }
     }
 
     public void clearTrail()
     {
-        mLastEntryX = -1;
-        mLastEntryY = -1;
+        mLastEntry = null;
     }
 
     private boolean isLastEntryNull()
     {
-        if(mLastEntryY != -1 || mLastEntryX != -1)
+        if(mLastEntry != null || mLastEntry != null)
             return false;
         else
             return true;
     }
 
-    private void createLineAndAddToQueue(int _x1, int _y1, int _x2, int _y2, RGBColor color)
+    private void bloatAndAdd(Coordinate coord) {
+        int x = coord.x;
+        int y = coord.y;
+        RGBColor color = coord.getColor();
+
+        boolean isCornerKewl = true;
+
+        int dx, dy;
+
+        for(int diff = 1; diff <= PaintManager.getInstance(this).getCurrentBrushSize(); diff++)
+        {
+            // Right pixel
+            dx = x + diff;
+            if(!isOutOfBounds(dx))
+            {
+                mTouchQueue.push(new Pixel(dx, y, color));
+            }
+            else
+            {
+                isCornerKewl = false;
+            }
+
+            // Upper pixel
+            dy = y + diff;
+            if(!isOutOfBounds(dy))
+            {
+                mTouchQueue.push(new Pixel(x, dy, color));
+            }
+            else
+            {
+                isCornerKewl = false;
+            }
+
+            // Left pixel
+            dx = x - diff;
+            if(!isOutOfBounds(dx))
+                mTouchQueue.push(new Pixel(dx, y, color));
+
+
+
+            // Lower pixel
+            dy = y - diff;
+            if(!isOutOfBounds(dy))
+                mTouchQueue.push(new Pixel(x, dy, color));
+
+            // Upper right pixel
+
+            // Upper left pixel
+
+            // Lower right pixel
+
+            // Lower left pixel
+
+
+
+        }
+    }
+
+    private void createLineAndAddToQueue(Coordinate origin, Coordinate destination)
     {
-        int x = _x1;
-        int y = _y1;
-        int x2 = _x2;
-        int y2 = _y2;
+
+
+        int x = origin.x;
+        int y = origin.y;
+        int x2 = destination.x;
+        int y2 = destination.y;
 
         // Get difference
         int w = x2 - x ;
@@ -485,16 +539,15 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
         int numerator = longest >> 1 ;
 
+        // These hold brush pixels
+        int dx, dy;
+
+        boolean isCornerKewl = true;
+
         for (int i=0;i<=longest;i++)
         {
-            mTouchQueue.push(new Pixel(x, y, color));
-
-            // Add extra points for brush size
-            for(int pixel = 0; pixel < mActivity.getCurrentBrushSize(); pixel++)
-            {
-
-            }
-
+            //mTouchQueue.push(new Pixel(x, y, color));
+            bloatAndAdd(new Coordinate(x, y, destination.getBrushSize(), destination.getColor()));
 
             numerator += shortest ;
             if (!(numerator<longest))
@@ -507,6 +560,14 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 y += dy2 ;
             }
         }
+    }
+
+    private boolean isOutOfBounds(int p)
+    {
+        if(p > mCanvasTexture.mWidth - 1 || p < 0)
+            return true;
+        else
+            return false;
     }
 
     // STILL HIGHLY UNSTABLE METHOD!!!!

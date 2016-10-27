@@ -8,10 +8,10 @@ import java.io.Serializable;
 public class Stroke implements Serializable {
     private SerializablePath serializablePath;
     private RGBColor color;
-    private double brushSize;
+    private int brushSize;
 
     public Stroke() {}
-    public Stroke(SerializablePath serializablePath, RGBColor color, double brushSize) {
+    public Stroke(SerializablePath serializablePath, RGBColor color, int brushSize) {
         this.serializablePath = serializablePath;
         this.color = color;
         this.brushSize = brushSize;
@@ -19,5 +19,5 @@ public class Stroke implements Serializable {
 
     public SerializablePath getSerializablePath() {return serializablePath;}
     public RGBColor getColor() {return color;}
-    public double getBrushSize() {return brushSize;}
+    public int getBrushSize() {return brushSize;}
 }
