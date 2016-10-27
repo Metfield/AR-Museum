@@ -45,8 +45,6 @@ import com.vuforia.TrackerManager;
 import com.vuforia.Vuforia;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Vector;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationControl;
@@ -59,7 +57,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 public class MainActivity extends Activity implements SampleApplicationControl {
     private static final String LOGTAG = "MainActivity";
 
-    private boolean dropDatabaseOnStart = false;
+    private boolean dropDatabaseOnStart = true;
 
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;
@@ -103,9 +101,6 @@ public class MainActivity extends Activity implements SampleApplicationControl {
     // Paintmanager
     PaintManager painter;
 
-    // Eman
-//    public Pixel tempTouchCoord;
-
     // Drawingpath
     private RGBColor currentColor;
     private int currentBrushSize = 1;
@@ -117,7 +112,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
 
     //Brush size picker
     private SeekBar sizeSeekBar;
-    private double maxBrushSize = 100;
+    private int maxBrushSize = 10;
     private TextView brushSizeText;
 
     // Called when the activity first starts or the user navigates back to an
@@ -632,7 +627,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
         sizeSeekBar = (SeekBar) findViewById(R.id.seekBar);
         brushSizeText = (TextView)findViewById(R.id.BrushSize);
         brushSizeText.setText(Double.toString(currentBrushSize));
-        sizeSeekBar.setMax((int) maxBrushSize);
+        sizeSeekBar.setMax(maxBrushSize);
 
         sizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -642,7 +637,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
                     sizeSeekBar.setProgress(1);
                 }
                 currentBrushSize = sizeSeekBar.getProgress();
-                brushSizeText.setText(Double.toString(currentBrushSize));
+                brushSizeText.setText(Integer.toString(currentBrushSize));
             }
 
             @Override
