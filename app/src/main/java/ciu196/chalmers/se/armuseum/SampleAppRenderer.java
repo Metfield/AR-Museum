@@ -222,6 +222,10 @@ public class SampleAppRenderer {
         SampleUtils.checkGLError("Rendering of the video background failed");
     }
 
+    public RenderingPrimitives getRenderingPrimitives()
+    {
+        return mRenderingPrimitives;
+    }
 
     static final float VIRTUAL_FOV_Y_DEGS = 85.0f;
     static final float M_PI = 3.14159f;

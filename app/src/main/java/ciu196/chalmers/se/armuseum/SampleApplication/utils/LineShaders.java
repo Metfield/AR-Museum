@@ -22,7 +22,7 @@ public class LineShaders
     public static final String LINE_FRAGMENT_SHADER = " \n" + " \n"
         + "precision mediump float; \n" + "uniform float opacity; \n"
         + "uniform vec3 color; \n" + " \n" + "void main() \n" + "{ \n"
-        + "   gl_FragColor = vec4(color.r, color.g, color.b, 1.0); \n"
+        + "   gl_FragColor = vec4(0, 0, 0, 1.0); \n"
         + "} \n";
     
 }

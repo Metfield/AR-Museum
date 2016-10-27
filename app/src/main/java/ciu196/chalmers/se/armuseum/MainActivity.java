@@ -59,7 +59,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
 public class MainActivity extends Activity implements SampleApplicationControl {
     private static final String LOGTAG = "MainActivity";
 
-    private boolean dropDatabaseOnStart = true;
+    private boolean dropDatabaseOnStart = false;
 
     // Firebase instance variables
     private DatabaseReference mFirebaseDatabaseReference;
@@ -576,7 +576,8 @@ public class MainActivity extends Activity implements SampleApplicationControl {
     }
 
 
-    private void login() {
+    private void login()
+    {
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override

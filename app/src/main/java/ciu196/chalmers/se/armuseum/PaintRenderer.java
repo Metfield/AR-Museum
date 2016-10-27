@@ -20,11 +20,13 @@ import android.widget.Toast;
 import com.vuforia.Device;
 import com.vuforia.Matrix44F;
 import com.vuforia.Renderer;
+import com.vuforia.RenderingPrimitives;
 import com.vuforia.State;
 import com.vuforia.Tool;
 import com.vuforia.Trackable;
 import com.vuforia.TrackableResult;
 import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
+import com.vuforia.Vec4F;
 import com.vuforia.Vuforia;
 
 import java.io.IOException;
@@ -90,9 +92,10 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
     private float[] mProjectionInverseMatrix;
     private float[] mViewInverseMatrix;
     private float[] mModelViewMatrix;
+    private float[] mRayTransformMatrix;
 
     // Ray member
-    private RayMesh mDebugRay;
+    public RayMesh mDebugRay;
 
     public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
@@ -218,6 +221,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         mProjectionInverseMatrix = new float[16];
         mViewInverseMatrix = new float[16];
         mModelViewMatrix = new float[16];
+        mRayTransformMatrix = new float[16];
 
         mLastEntryX = mLastEntryY = -1;
     }
@@ -262,6 +266,11 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             {
                 Matrix.translateM(modelViewMatrix, 0, 0.0f, 0.0f, OBJECT_SCALE_FLOAT);
                 Matrix.scaleM(modelViewMatrix, 0, OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT, OBJECT_SCALE_FLOAT);
+
+                // Set same transformations for the ray
+                /*Matrix.setIdentityM(mRayTransformMatrix, 0);
+                Matrix.rotateM(mRayTransformMatrix, 0, 90.0f, 1.0f, 0, 0);
+                Matrix.scaleM(mRayTransformMatrix, 0, kBuildingScale, kBuildingScale, kBuildingScale);*/
             }
             else
             {
@@ -274,7 +283,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             // Eman: Get projection and view inverse
             Matrix.invertM(this.mProjectionInverseMatrix, 0, projectionMatrix, 0);
             Matrix.invertM(this.mViewInverseMatrix, 0, modelViewMatrix, 0);
-            this.mModelViewMatrix = modelViewMatrix;
+            mModelViewMatrix = modelViewMatrix;
 
             // activate the shader program and bind the vertex/normal/tex coords
             GLES20.glUseProgram(shaderProgramID);
@@ -398,7 +407,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public void addTouchToQueue(TouchCoord tc)
     {
-        //transformCoordinates(tc.getX(), tc.getY());
+        transformCoordinates(tc.getX(), tc.getY());
 
         // Eman: Stupid fucking hack FUCK YOU JAVA
         // As long as there is a previous entry do this
@@ -500,15 +509,20 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         viewport_coords.x = Math.max(-1.0f, Math.min(1.0f, (float)viewport_coords.x));
         viewport_coords.y = Math.max(-1.0f, Math.min(1.0f, (float)viewport_coords.y));
 
+        //Log.e("blah!", "Viewport: " + viewport_coords.x + " " + viewport_coords.y  + " " + viewport_coords.z);
+
         float[] view_coords = new float[4];
         float[] model_coords = new float[4];
         float[] ray_origin = new float[4];
 
+        // Go to eye (camera) coordinates
         Matrix.multiplyMV(view_coords, 0, mProjectionInverseMatrix, 0, viewport_coords.getFloatArray(), 0);
 
+        // We're going in -z direction. W is 0 because this is not a point
         view_coords[2] = -1.0f;
         view_coords[3] = 0.0f;
 
+        // Need to go to world coordinates
         Matrix.multiplyMV(model_coords, 0, mViewInverseMatrix, 0, view_coords, 0);
 
         ray_origin[0] = model_coords[0];
@@ -519,19 +533,36 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         float length = (float)Math.sqrt(ray_origin[0]*ray_origin[0] + ray_origin[1]*ray_origin[1] + ray_origin[2]*ray_origin[2]);
         ray_origin[0] /= length;
         ray_origin[1] /= length;
-        ray_origin[2] = (ray_origin[2] / length) + mCanvas.getFrontFaceDepth();
+        ray_origin[2] = (ray_origin[2] / length) /*+ mCanvas.getFrontFaceDepth()*/;
 
-      /*  Log.e("cock", "Transformed: " + ray[0]
-                + " " + ray[1]
-                + " " + ray[2]);
-*/
 
-        mDebugRay.setOrigin(ray_origin[0], ray_origin[1], ray_origin[2] + 10);
-        mDebugRay.setDestination(ray_origin[0], ray_origin[1], -10);
 
+       /* mDebugRay.setOrigin(transformed[0], transformed[1], transformed[2] + 10);
+        mDebugRay.setDestination(transformed[0], transformed[1], transformed[2] -10);*/
+
+        /*Log.e("cock", "Transformed: " + transformed[0]
+                + " " + transformed[1]
+                + " " + transformed[2]);*/
+
+        // Get vuforia's eye adjustment matrix
+        /*float eyeAdjustmentGL[] = Tool.convert2GLMatrix(mSampleAppRenderer.getRenderingPrimitives().getEyeDisplayAdjustmentMatrix(0)).getData();
+        float adjustedCoords[] = new float[4];
+
+        Matrix.multiplyMV (adjustedCoords, 0, mModelViewMatrix, 0, ray_origin, 0);
+
+        length = (float)Math.sqrt(adjustedCoords[0]*adjustedCoords[0] + adjustedCoords[1]*adjustedCoords[1] + adjustedCoords[2]*adjustedCoords[2]);
+        adjustedCoords[0] /= length;
+        adjustedCoords[1] /= length;
+        adjustedCoords[2] /= length;
+
+        Log.e("cock", "Adjusted: " + adjustedCoords[0]
+                + " " + adjustedCoords[1]
+                + " " + adjustedCoords[2]);*/
+
+        /*mDebugRay.setOrigin(adjustedCoords[0], adjustedCoords[1], adjustedCoords[2] + 10);
+        mDebugRay.setDestination(adjustedCoords[0], adjustedCoords[1], -10);*/
 
         float[] ray_dir = new float[] {0.0f, 0.0f, -1.0f};
-
         float[] n = new float[] {0.0f, 0.0f, 1.0f};
 
         // Get t distance
@@ -557,6 +588,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         canvas_coords[0] = ray_origin[0] + ray_dir[0] * t;
         canvas_coords[1] = ray_origin[1] + ray_dir[1] * t;
         canvas_coords[2] = ray_origin[2] + ray_dir[2] * t;
+
 
         /*Log.e("cock", "CanvasCoords: " + canvas_coords[0]
                 + " " + canvas_coords[1]
