@@ -397,9 +397,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         return mCanvasTexture;
     }
 
-    public void addTouchToQueue(TouchCoord tc, RGBColor color, double brushSize)
+    public void addTouchToQueue(TouchCoord tc, double brushSize)
     {
-        mTouchQueue.setColor(color);
+//        mTouchQueue.setColor(color);
         mTouchQueue.setBrushSize(brushSize);
 
         mTouchQueue.push(tc);
@@ -419,7 +419,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             int x2 = tc.getX();
             int y2 = tc.getY();
 
-            createLineAndAddToQueue(x1, y1, x2, y2);
+            createLineAndAddToQueue(x1, y1, x2, y2, tc.getColor());
 
             mLastEntryX = tc.getX();
             mLastEntryY = tc.getY();
@@ -447,7 +447,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             return true;
     }
 
-    private void createLineAndAddToQueue(int _x1, int _y1, int _x2, int _y2)
+    private void createLineAndAddToQueue(int _x1, int _y1, int _x2, int _y2, RGBColor color)
     {
         int x = _x1;
         int y = _y1;
@@ -480,7 +480,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
         for (int i=0;i<=longest;i++)
         {
-            mTouchQueue.push(new TouchCoord(x, y));
+            mTouchQueue.push(new TouchCoord(x, y, color));
 //            mActivity.getDrawingPath().addPoint(new Point(x, y));
 
             numerator += shortest ;

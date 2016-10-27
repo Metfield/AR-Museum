@@ -53,8 +53,8 @@ public class PaintManager {
         currentBrushSize = brushSize;
 
 
-        TouchCoord touchCoord = new TouchCoord(point.x, point.y);
-        renderer.addTouchToQueue(touchCoord, currentColor, currentBrushSize);
+        TouchCoord touchCoord = new TouchCoord(point.x, point.y, currentColor);
+        renderer.addTouchToQueue(touchCoord, currentBrushSize);
 
         // Don't save in database if the call was triggered from database listener
         if (!isDatabaseCall) {
@@ -69,7 +69,7 @@ public class PaintManager {
     }
 
     private void lineTo(Point point, boolean isDatabaseCall) {
-        renderer.addTouchToQueue(new TouchCoord(point.x, point.y));
+        renderer.addTouchToQueue(new TouchCoord(point.x, point.y, currentColor));
 
         if (!isDatabaseCall) {
             // For db

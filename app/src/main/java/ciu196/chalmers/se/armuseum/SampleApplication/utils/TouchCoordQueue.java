@@ -16,8 +16,7 @@ public class TouchCoordQueue
 {
     private static final String LOGTAG = "TouchCoordQueue";
 
-    private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
-    //    private static final double DEFAULT_BRUSH_SIZE = 20;
+    private static final double DEFAULT_BRUSH_SIZE = 20;
 
     private static TouchCoordQueue instance;
 
@@ -30,7 +29,6 @@ public class TouchCoordQueue
 
     private TouchCoordQueue() {
         queue = new LinkedBlockingQueue<>();
-        currentColor = DEFAULT_COLOR;
     }
 
     // Use Vector maybe?
@@ -39,7 +37,6 @@ public class TouchCoordQueue
     public static int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
     public static int TEXTURE_SIZE;
 
-    private RGBColor currentColor ;
     private double currentBrushSize;
 
     public void push(TouchCoord tc)
@@ -70,16 +67,6 @@ public class TouchCoordQueue
         return (int)(value * scale);
     }
 
-    public RGBColor getColor()
-    {
-        return currentColor;
-    }
-
-    public void setColor(RGBColor color)
-    {
-        currentColor = color;
-    }
-
     public double getBrushSize()
     {
         return currentBrushSize;
@@ -93,7 +80,6 @@ public class TouchCoordQueue
     public void reset()
     {
         currentBrushSize = 0;
-        currentColor = DEFAULT_COLOR;
     }
 
     public boolean isReady() {
