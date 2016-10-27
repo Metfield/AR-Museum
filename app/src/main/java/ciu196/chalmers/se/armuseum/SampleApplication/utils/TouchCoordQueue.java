@@ -12,7 +12,7 @@ import ciu196.chalmers.se.armuseum.RGBColor;
 /**
  * Created by taich on 10/10/2016.
  */
-public class TouchCoordQueue extends CoordinateQueue
+public class TouchCoordQueue
 {
     private static final String LOGTAG = "TouchCoordQueue";
 
@@ -29,7 +29,8 @@ public class TouchCoordQueue extends CoordinateQueue
     }
 
     private TouchCoordQueue() {
-        super();
+        queue = new LinkedBlockingQueue<>();
+        currentColor = DEFAULT_COLOR;
     }
 
     // Use Vector maybe?
