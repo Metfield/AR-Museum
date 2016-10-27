@@ -12,7 +12,6 @@ package ciu196.chalmers.se.armuseum;
 import android.graphics.Point;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLU;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,7 +19,6 @@ import android.widget.Toast;
 import com.vuforia.Device;
 import com.vuforia.Matrix44F;
 import com.vuforia.Renderer;
-import com.vuforia.RenderingPrimitives;
 import com.vuforia.State;
 import com.vuforia.Tool;
 import com.vuforia.Trackable;
@@ -28,7 +26,6 @@ import com.vuforia.TrackableResult;
 import com.vuforia.VIDEO_BACKGROUND_REFLECTION;
 import com.vuforia.Vec2F;
 import com.vuforia.Vec3F;
-import com.vuforia.Vec4F;
 import com.vuforia.Vuforia;
 
 import java.io.IOException;
@@ -39,7 +36,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import ciu196.chalmers.se.armuseum.SampleApplication.SampleApplicationSession;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CanvasMesh;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeObject;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.Pixel;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.CubeShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LineShaders;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.LoadingDialogHandler;
@@ -48,9 +45,7 @@ import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleApplication3DMo
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleMath;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.SampleUtils;
 import ciu196.chalmers.se.armuseum.SampleApplication.utils.Texture;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoordQueue;
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.Vec4;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.TexturePixelQueue;
 
 
 // The renderer class for the ImageTargets sample. 
@@ -101,7 +96,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     public int VIEWPORT_WIDTH, VIEWPORT_HEIGHT;
 
-    private TouchCoordQueue mTouchQueue;
+    private TexturePixelQueue mTouchQueue;
 
     private static final float OBJECT_SCALE_FLOAT = 200.0f;
 
@@ -116,7 +111,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         // the device mode AR/VR and stereo mode
         mSampleAppRenderer = new SampleAppRenderer(this, Device.MODE.MODE_AR, false);
 
-        mTouchQueue = TouchCoordQueue.getInstance();
+        mTouchQueue = TexturePixelQueue.getInstance();
     }
     
     
@@ -222,8 +217,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         VIEWPORT_WIDTH = tempPoint.x;
         VIEWPORT_HEIGHT = tempPoint.y;
 
-        /*TouchCoordQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
-        TouchCoordQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;*/
+        /*TexturePixelQueue.VIEWPORT_WIDTH = VIEWPORT_WIDTH;
+        TexturePixelQueue.VIEWPORT_HEIGHT = VIEWPORT_HEIGHT;*/
 
         mProjectionInverseMatrix = new float[16];
         mViewInverseMatrix = new float[16];
@@ -308,8 +303,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 GLES20.glEnableVertexAttribArray(vertexHandle);
                 GLES20.glEnableVertexAttribArray(textureCoordHandle);
 
-                // Also set TouchCoordQueue texture size
-               // TouchCoordQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
+                // Also set TexturePixelQueue texture size
+               // TexturePixelQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
 
                 // activate texture 0, bind it, and pass to shader
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -386,7 +381,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             mCanvasTexture.updatePixels();
         }
 
-       /* TouchCoord tc;
+       /* Pixel tc;
         Vec2F point;// = new Vec2F();
         Vec3F center = new Vec3F(0.0f, 0.0f, 0.0f);
         Vec3F normal = new Vec3F(0.0f, 0.0f, 1.0f);
@@ -401,7 +396,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         while(mTouchQueue.getSize() > 0)
         {
             tc = mTouchQueue.pop();
-            point = new Vec2F(tc.getX(), tc.getY());
+            point = new Vec2F(tc.x, tc.x);
 
             SampleMath.projectScreenPointToPlane(projectionInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, point, center, normal);
         }*/
@@ -409,7 +404,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         return mCanvasTexture;
     }
 
-    public void addTouchToQueue(TouchCoord tc, double brushSize)
+    public void addTouchToQueue(Pixel tc, double brushSize)
     {
 //        mTouchQueue.setColor(color);
         mTouchQueue.setBrushSize(brushSize);
@@ -417,9 +412,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         mTouchQueue.push(tc);
     }
 
-    public void addTouchToQueue(TouchCoord tc)
+    public void addTouchToQueue(Pixel tc)
     {
-        //transformCoordinates(tc.getX(), tc.getY());
+        //transformCoordinates(tc.x, tc.x);
 
         // Eman: Stupid fucking hack FUCK YOU JAVA
         // As long as there is a previous entry do this
@@ -428,20 +423,20 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             // Set variables for line method
             int x1 = mLastEntryX;
             int y1 = mLastEntryY;
-            int x2 = tc.getX();
-            int y2 = tc.getY();
+            int x2 = tc.x;
+            int y2 = tc.y;
 
             createLineAndAddToQueue(x1, y1, x2, y2, tc.getColor());
 
-            mLastEntryX = tc.getX();
-            mLastEntryY = tc.getY();
+            mLastEntryX = tc.x;
+            mLastEntryY = tc.y;
         }
         else
         {
             // If there is no entry add the first one
             mTouchQueue.push(tc);
-            mLastEntryX = tc.getX();
-            mLastEntryY = tc.getY();
+            mLastEntryX = tc.x;
+            mLastEntryY = tc.y;
         }
     }
 
@@ -492,7 +487,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
         for (int i=0;i<=longest;i++)
         {
-            mTouchQueue.push(new TouchCoord(x, y, color));
+            mTouchQueue.push(new Pixel(x, y, color));
 
             // Add extra points for brush size
             for(int pixel = 0; pixel < mActivity.getCurrentBrushSize(); pixel++)
@@ -549,8 +544,8 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
 
         // Transform touch coordinates to viewport space [-1, 1]
-        Vec4 viewport_coords = new Vec4( (2.0f * x) / TouchCoordQueue.VIEWPORT_WIDTH - 1.0f,
-                1.0f - (2.0f * y) / TouchCoordQueue.VIEWPORT_HEIGHT,
+        Vec4 viewport_coords = new Vec4( (2.0f * x) / TexturePixelQueue.VIEWPORT_WIDTH - 1.0f,
+                1.0f - (2.0f * y) / TexturePixelQueue.VIEWPORT_HEIGHT,
                 -1.0f,
                 1.0f );
 

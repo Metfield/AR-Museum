@@ -27,5 +27,6 @@
         android:id="@+id/BrushSize"
         android:layout_toEndOf="@+id/seekBar"
         android:layout_alignTop="@+id/seekBar"
-        android:layout_alignBottom="@+id/seekBar" />
+        android:layout_alignBottom="@+id/seekBar"
+        android:textStyle="normal|bold" />
 </RelativeLayout>

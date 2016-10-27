@@ -8,7 +8,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import ciu196.chalmers.se.armuseum.SampleApplication.utils.TouchCoord;
+import ciu196.chalmers.se.armuseum.SampleApplication.utils.Pixel;
 
 
 /**
@@ -68,8 +68,8 @@ public class PaintManager {
             drawingPath = new SerializablePath();
             addTexturePointToDrawingPath(point);
         }
-        TouchCoord tc = new TouchCoord(point.x, point.y, currentColor);
-        renderer.addTouchToQueue(tc, currentBrushSize);
+        Pixel pixel = new Pixel(point, currentColor);
+        renderer.addTouchToQueue(pixel, currentBrushSize);
     }
 
     public void lineTo(Point point) {
@@ -86,8 +86,8 @@ public class PaintManager {
             // For db
             addTexturePointToDrawingPath(point);
         }
-        TouchCoord tc = new TouchCoord(point.x, point.y, currentColor);
-        renderer.addTouchToQueue(tc);
+        Pixel pixel = new Pixel(point, currentColor);
+        renderer.addTouchToQueue(pixel);
     }
 
     public void finishLine() {
@@ -173,7 +173,6 @@ public class PaintManager {
         drawingPath.addPoint(texturePoint);
     }
 
-    // TODO: Make this function convert screen space into drawing space
     private Point convertToCanvasCoordinates(Point point)
     {
         point.x = convertX2U(point.x);
@@ -197,13 +196,6 @@ public class PaintManager {
     private double getTextureSize()
     {
         return renderer.mCanvasTexture.mWidth - 1;
-    }
-
-    // Converts canvas space into screen space for sending to drawing queue
-    // Should maybe be in renderer
-    // TODO: implement
-    private Point convertToScreenCoordinates(Point point) {
-        return point;
     }
 
     public boolean isReady() {

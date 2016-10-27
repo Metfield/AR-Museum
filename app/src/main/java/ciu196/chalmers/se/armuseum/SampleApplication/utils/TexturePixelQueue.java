@@ -1,49 +1,43 @@
 package ciu196.chalmers.se.armuseum.SampleApplication.utils;
 
-import android.util.Log;
-
 import java.util.Queue;
-import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-
-import ciu196.chalmers.se.armuseum.RGBColor;
 
 /**
  * Created by taich on 10/10/2016.
  */
-public class TouchCoordQueue
+public class TexturePixelQueue
 {
-    private static final String LOGTAG = "TouchCoordQueue";
+    private static final String LOGTAG = "TexturePixelQueue";
 
     private static final double DEFAULT_BRUSH_SIZE = 20;
 
-    private static TouchCoordQueue instance;
+    private static TexturePixelQueue instance;
 
-    public static TouchCoordQueue getInstance() {
+    public static TexturePixelQueue getInstance() {
         if (instance == null) {
-            instance = new TouchCoordQueue();
+            instance = new TexturePixelQueue();
         }
         return instance;
     }
 
-    private TouchCoordQueue() {
+    private TexturePixelQueue() {
         queue = new LinkedBlockingQueue<>();
     }
 
     // Use Vector maybe?
-    private Queue<TouchCoord> queue;
+    private Queue<Pixel> queue;
 
     private double currentBrushSize;
 
-    public void push(TouchCoord tc)
+    public void push(Pixel tc)
     {
         queue.add(tc);
     }
 
-    public TouchCoord pop()
+    public Pixel pop()
     {
-        TouchCoord tc = queue.poll();
+        Pixel tc = queue.poll();
         return tc;
     }
 
