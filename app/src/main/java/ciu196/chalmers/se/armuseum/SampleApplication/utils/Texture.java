@@ -119,8 +119,6 @@ public class Texture
         texture.mBufferSize = texture.mData.position();
         texture.mData.rewind();
 
-//        Log.v(LOGTAG, "mData initialized");
-
         // Cleans variables
         dataBytes = null;
         data = null;
@@ -154,7 +152,8 @@ public class Texture
         int offset;
         int memPitch;
 
-        setBrushColor(mTouchQueue.getColor());
+//        setBrushColor(mTouchQueue.getColor());
+
         // TODO: Use brush size
         mBrushSize = mTouchQueue.getBrushSize();
 
@@ -167,6 +166,8 @@ public class Texture
                 Log.v(LOGTAG, "Touchcoordinate null when popping");
                 return;
             }
+
+            setBrushColor(tc.getColor());
 
             // Get u,v coordinates
             u = tc.getU() * mChannels;
