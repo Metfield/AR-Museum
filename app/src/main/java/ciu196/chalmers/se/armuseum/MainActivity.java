@@ -532,6 +532,8 @@ public class MainActivity extends Activity implements SampleApplicationControl {
 
         Point touchCoordinate = new Point(xPos, yPos);
 
+        currentColor = intToRGB(colorSeekBar.getColor());
+
         switch(action)
         {
             case MotionEvent.ACTION_DOWN:
