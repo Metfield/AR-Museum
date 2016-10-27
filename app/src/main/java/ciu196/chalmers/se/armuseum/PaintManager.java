@@ -60,7 +60,7 @@ public class PaintManager {
         if (!isDatabaseCall) {
             // For db
             drawingPath = new SerializablePath();
-            drawingPath.addPoint(point);
+            addTouchPointToDrawingPath(point);
         }
     }
 
@@ -73,7 +73,7 @@ public class PaintManager {
 
         if (!isDatabaseCall) {
             // For db
-            drawingPath.addPoint(point);
+            addTouchPointToDrawingPath(point);
         }
     }
 
@@ -153,6 +153,23 @@ public class PaintManager {
 
     public void setRenderer(PaintRenderer renderer) {
         this.renderer = renderer;
+    }
+
+    private void addTouchPointToDrawingPath(Point touchedPoint) {
+        Point canvasPoint = convertToCanvasCoordinates(touchedPoint);
+        drawingPath.addPoint(canvasPoint);
+    }
+
+    // TODO: Make this function convert screen space into drawing space
+    private Point convertToCanvasCoordinates(Point point) {
+        return point;
+    }
+
+    // Converts canvas space into screen space for sending to drawing queue
+    // Should maybe be in renderer
+    // TODO: implement
+    private Point convertToScreenCoordinates(Point point) {
+        return point;
     }
 
 }
