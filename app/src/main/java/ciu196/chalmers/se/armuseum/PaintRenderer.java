@@ -295,6 +295,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 GLES20.glEnableVertexAttribArray(vertexHandle);
                 GLES20.glEnableVertexAttribArray(textureCoordHandle);
 
+                // Also set TouchCoordQueue texture size
+                TouchCoordQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
+
                 // activate texture 0, bind it, and pass to shader
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, this.getCanvasTexture().mTextureID[0]);
@@ -311,8 +314,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 GLES20.glDisableVertexAttribArray(vertexHandle);
                 GLES20.glDisableVertexAttribArray(textureCoordHandle);
 
-                // Also set TouchCoordQueue texture size
-                TouchCoordQueue.TEXTURE_SIZE = mCanvasTexture.mWidth - 1;
+
 
                 // Eman
                 // Now draw the debug RAY!!!
@@ -358,19 +360,18 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         mTextures = textures;
         mCanvasTexture = textures.get(CANVAS_TEXTURE);
 
-//        mCurrentBrushColor = new RGBColor((byte)20, (byte)20, (byte)20);
-//        mCanvasTexture.setBrushColor(mCurrentBrushColor);
-
         mActivity.onDrawingSurfaceLoaded();
     }
 
+
+
     public Texture getCanvasTexture()
     {
-//        Log.v(LOGTAG, "Coord queue:  " + mTouchQueue.getSize());
+        Log.v(LOGTAG, "Queue Coord queue:  " + mTouchQueue.getSize());
         // Do the whole texture getting here
-        if(mTouchQueue.getSize() > 0 && mIsTextureActive)
+        if(mTouchQueue.getSize() > 0 && mTouchQueue.isReady())
         {
-            Log.v(LOGTAG, "Popping coords ");
+            Log.v(LOGTAG, "Queue Popping coords ");
             mCanvasTexture.updatePixels();
 
         }

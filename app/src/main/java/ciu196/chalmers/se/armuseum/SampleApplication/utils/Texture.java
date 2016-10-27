@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.logging.Logger;
 
 import ciu196.chalmers.se.armuseum.MainActivity;
 import ciu196.chalmers.se.armuseum.PaintRenderer;
@@ -117,7 +118,9 @@ public class Texture
 
         texture.mBufferSize = texture.mData.position();
         texture.mData.rewind();
-        
+
+//        Log.v(LOGTAG, "mData initialized");
+
         // Cleans variables
         dataBytes = null;
         data = null;
@@ -161,6 +164,7 @@ public class Texture
 
             if(tc == null)
             {
+                Log.v(LOGTAG, "Touchcoordinate null when popping");
                 return;
             }
 

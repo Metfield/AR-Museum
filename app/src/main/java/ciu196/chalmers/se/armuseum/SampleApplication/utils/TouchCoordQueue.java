@@ -1,5 +1,7 @@
 package ciu196.chalmers.se.armuseum.SampleApplication.utils;
 
+import android.util.Log;
+
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,6 +14,8 @@ import ciu196.chalmers.se.armuseum.RGBColor;
  */
 public class TouchCoordQueue
 {
+    private static final String LOGTAG = "TouchCoordQueue";
+
     private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
     //    private static final double DEFAULT_BRUSH_SIZE = 20;
 
@@ -45,7 +49,10 @@ public class TouchCoordQueue
 
     public TouchCoord pop()
     {
-        return queue.poll();
+        TouchCoord tc = queue.poll();
+        Log.v(LOGTAG, tc.toString());
+
+        return tc;
     }
 
     public int getSize()
@@ -89,6 +96,9 @@ public class TouchCoordQueue
     {
         currentBrushSize = 0;
         currentColor = DEFAULT_COLOR;
-//        queue.clear();
+    }
+
+    public boolean isReady() {
+        return TEXTURE_SIZE > 0 && VIEWPORT_HEIGHT > 0 && VIEWPORT_WIDTH > 0;
     }
 }
