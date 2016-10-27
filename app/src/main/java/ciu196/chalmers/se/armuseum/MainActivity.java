@@ -104,7 +104,7 @@ public class MainActivity extends Activity implements SampleApplicationControl {
     PaintManager painter;
 
     // Eman
-//    public TouchCoord tempTouchCoord;
+//    public Pixel tempTouchCoord;
 
     // Drawingpath
     private RGBColor currentColor;

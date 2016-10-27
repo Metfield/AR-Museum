@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.logging.Logger;
 
-import ciu196.chalmers.se.armuseum.MainActivity;
-import ciu196.chalmers.se.armuseum.PaintRenderer;
 import ciu196.chalmers.se.armuseum.RGBColor;
 
 
@@ -44,7 +41,7 @@ public class Texture
     public byte[] mDataBytes;
 
     public int mBufferSize;
-    private TouchCoordQueue mTouchQueue = TouchCoordQueue.getInstance();
+    private TexturePixelQueue mPixelQueue = TexturePixelQueue.getInstance();
 
 
     private static final RGBColor DEFAULT_COLOR = new RGBColor(0, 0, 0);
@@ -147,19 +144,19 @@ public class Texture
         mData = mTempBuffer;
         mTempBuffer.rewind();*/
 
-        TouchCoord tc;
+        Pixel tc;
         int u, v;
         int offset;
         int memPitch;
 
-//        setBrushColor(mTouchQueue.getColor());
+//        setBrushColor(mPixelQueue.getColor());
 
         // TODO: Use brush size
-        mBrushSize = mTouchQueue.getBrushSize();
+        mBrushSize = mPixelQueue.getBrushSize();
 
-        while(mTouchQueue.getSize() > 0)
+        while(mPixelQueue.getSize() > 0)
         {
-            tc = mTouchQueue.pop();
+            tc = mPixelQueue.pop();
 
             if(tc == null)
             {
@@ -170,8 +167,8 @@ public class Texture
             setBrushColor(tc.getColor());
 
             // Get u,v coordinates
-            u = tc.getX() * mChannels;
-            v = mHeight - tc.getY();
+            u = tc.x * mChannels;
+            v = mHeight - tc.y;
 
 //            Log.e("blah","Raw v: " + v);
 
