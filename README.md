@@ -6,8 +6,8 @@ Multiple users can paint on the same canvas at the same time thanks to a shared 
 
 Screenshots of the application GUI. At the top is a slider acting as color palette. Close to the bottom is another slider providing brush size optionality
 
-![Alt text](/Screenshots/gARffiti 1.png?raw=true "Optional Title")
-![Alt text](/Screenshots/gARffiti 2.png?raw=true )
+![Alt text](https://github.com/Metfield/AR-Museum/blob/master/Screenshots/gARffiti%201.png "Optional Title")
+![Alt text](https://github.com/Metfield/AR-Museum/blob/master/Screenshots/gARffiti%202.png )
 
 
  	
