@@ -82,9 +82,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     // @Eman
     public Texture mCanvasTexture;
-//    private RGBColor mCurrentBrushColor;
-
-    // FUCK YOU ANDROID, YOU GIVE ME NO OTHER CHOICE!
     private Coordinate mLastEntry;
 
     private float[] mProjectionInverseMatrix;
@@ -99,7 +96,7 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
 
     private TexturePixelQueue mTouchQueue;
 
-    private static final float OBJECT_SCALE_FLOAT = 200.0f;
+    private static final float OBJECT_SCALE_FLOAT = 300.0f;
 
     // To know whether there is something we can draw on
     boolean mIsTextureActive = false;
@@ -323,11 +320,9 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
                 GLES20.glDisableVertexAttribArray(vertexHandle);
                 GLES20.glDisableVertexAttribArray(textureCoordHandle);
 
-
-
                 // Eman
                 // Now draw the debug RAY!!!
-                GLES20.glUseProgram(lineShaderProgramID);
+                //GLES20.glUseProgram(lineShaderProgramID);
 
                 GLES20.glLineWidth(50);
 
@@ -382,43 +377,16 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             mCanvasTexture.updatePixels();
         }
 
-       /* Pixel tc;
-        Vec2F point;// = new Vec2F();
-        Vec3F center = new Vec3F(0.0f, 0.0f, 0.0f);
-        Vec3F normal = new Vec3F(0.0f, 0.0f, 1.0f);
-        Matrix44F projectionInverse, modelView;
-
-        projectionInverse = new Matrix44F();
-        modelView = new Matrix44F();
-
-        projectionInverse.setData(mProjectionInverseMatrix);
-        projectionInverse.setData(mModelViewMatrix);
-
-        while(mTouchQueue.getSize() > 0)
-        {
-            tc = mTouchQueue.pop();
-            point = new Vec2F(tc.x, tc.x);
-
-            SampleMath.projectScreenPointToPlane(projectionInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, point, center, normal);
-        }*/
-
         return mCanvasTexture;
     }
 
     public void startLineAt(Coordinate coord)
     {
-//        mTouchQueue.setColor(color);
         bloatAndAdd(coord);
-
-
-   //     mTouchQueue.push(coord);
     }
 
     public void continueLineTo(Coordinate coord)
     {
-        //transformCoordinates(tc.x, tc.x);
-
-        // Eman: Stupid fucking hack FUCK YOU JAVA
         // As long as there is a previous entry do this
         if(!isLastEntryNull())
         {
@@ -430,7 +398,6 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
         {
             // If there is no entry add the first one
             bloatAndAdd(coord);
-
             mLastEntry = coord;
         }
     }
@@ -533,40 +500,14 @@ public class PaintRenderer implements GLSurfaceView.Renderer, SampleAppRendererC
             return false;
     }
 
-    // STILL HIGHLY UNSTABLE METHOD!!!!
     private float[] transformCoordinates(float x, float y)
     {
-        Log.i("touch", "TOUCH: " + x + " " + y);
-
         Matrix44F projInverse = new Matrix44F();
         projInverse.setData(mProjectionInverseMatrix);
 
         Matrix44F modelView = new Matrix44F();
         modelView.setData(mModelViewMatrix);
-
-
-        Log.i("inter", "Test right plane");
-        SampleMath.projectScreenPointToPlane(projInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, new Vec2F(x, y), new Vec3F(1, 0, 0), new Vec3F(-1, 0, 0));
 /*
-        Log.i("inter", "Test left plane");
-        SampleMath.projectScreenPointToPlane(projInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, new Vec2F(x, y), new Vec3F(-1, 0, 0), new Vec3F(1, 0, 0));
-
-        Log.i("inter", "Test upper plane");
-        SampleMath.projectScreenPointToPlane(projInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, new Vec2F(x, y), new Vec3F(0, 1, 0), new Vec3F(0, -1, 0));
-
-        Log.i("inter", "Test lower plane");
-        SampleMath.projectScreenPointToPlane(projInverse, modelView, VIEWPORT_WIDTH, VIEWPORT_HEIGHT, new Vec2F(x, y), new Vec3F(0, -1, 0), new Vec3F(0, 1, 0));
-
-        //Log.i("inter", "Test right plane");
-
-
-*/
-
-
-
-/*
-
-
         // Transform touch coordinates to viewport space [-1, 1]
         Vec4 viewport_coords = new Vec4( (2.0f * x) / TexturePixelQueue.VIEWPORT_WIDTH - 1.0f,
                 1.0f - (2.0f * y) / TexturePixelQueue.VIEWPORT_HEIGHT,

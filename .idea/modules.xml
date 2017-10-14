@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Garfiti.iml" filepath="$PROJECT_DIR$/Garfiti.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/armuseum.iml" filepath="$PROJECT_DIR$/armuseum.iml" />
     </modules>
   </component>
 </project>

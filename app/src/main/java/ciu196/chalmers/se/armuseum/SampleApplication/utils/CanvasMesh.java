@@ -11,35 +11,35 @@ public class CanvasMesh extends MeshObject
     private static double front = back + 0.2f;
 
     private static final double vertices[]  = {
-            -1.00f, -1.00f, front, // front
-            1.00f, -1.00f, front,
-            1.00f, 1.00f, front,
-            -1.00f, 1.00f, front,
+            -1.00f, -1.80f, front, // front
+            1.00f, -1.80f, front,
+            1.00f, 1.80f, front,
+            -1.00f, 1.80f, front,
 
-            -1.00f, -1.00f, back, // back
-            1.00f, -1.00f, back,
-            1.00f, 1.00f, back,
-            -1.00f, 1.00f, back,
+            -1.00f, -1.80f, back, // back
+            1.00f, -1.80f, back,
+            1.00f, 1.80f, back,
+            -1.00f, 1.80f, back,
 
-            -1.00f, -1.00f, back, // left
-            -1.00f, -1.00f, front,
-            -1.00f, 1.00f, front,
-            -1.00f, 1.00f, back,
+            -1.00f, -1.80f, back, // left
+            -1.00f, -1.80f, front,
+            -1.00f, 1.80f, front,
+            -1.00f, 1.80f, back,
 
-            1.00f, -1.00f, back, // right
-            1.00f, -1.00f, front,
-            1.00f, 1.00f, front,
-            1.00f, 1.00f, back,
+            1.00f, -1.80f, back, // right
+            1.00f, -1.80f, front,
+            1.00f, 1.80f, front,
+            1.00f, 1.80f, back,
 
-            -1.00f, 1.00f, front, // top
-            1.00f, 1.00f, front,
-            1.00f, 1.00f, back,
-            -1.00f, 1.00f, back,
+            -1.00f, 1.80f, front, // top
+            1.00f, 1.80f, front,
+            1.00f, 1.80f, back,
+            -1.00f, 1.80f, back,
 
-            -1.00f, -1.00f, front, // bottom
-            1.00f, -1.00f, front,
-            1.00f, -1.00f, back,
-            -1.00f, -1.00f, back };
+            -1.00f, -1.80f, front, // bottom
+            1.00f, -1.80f, front,
+            1.00f, -1.80f, back,
+            -1.00f, -1.80f, back };
 
 
     private static final double texcoords[] = {

@@ -126,30 +126,10 @@ public class Texture
 
     public void updatePixels()
     {
-       /* for (int p = 0; p < mNumPixels; ++p)
-        {
-            mDataBytes[p * 4] = (byte) (this.mBrushColor.r >>> 16); // R
-            mDataBytes[p * 4 + 1] = (byte) (this.mBrushColor.g >>> 8); // G
-            mDataBytes[p * 4 + 2] = (byte) this.mBrushColor.b; // B
-            mDataBytes[p * 4 + 3] = (byte) (255 >>> 24); // A
-        }
-
-        int rowSize = mWidth * mChannels;
-
-        for (int r = 0; r < mHeight; r++)
-        {
-            mTempBuffer.put(mDataBytes, rowSize * (mHeight - 1 - r), rowSize);
-        }
-
-        mData = mTempBuffer;
-        mTempBuffer.rewind();*/
-
         Pixel tc;
         int u, v;
         int offset;
         int memPitch;
-
-//        setBrushColor(mPixelQueue.getColor());
 
         // TODO: Use brush size
         mBrushSize = mPixelQueue.getBrushSize();
@@ -170,12 +150,8 @@ public class Texture
             u = tc.x * mChannels;
             v = mHeight - tc.y;
 
-//            Log.e("blah","Raw v: " + v);
-
             // Clamp v value to [0, tex_1D_size-1]
             v = Math.max(0, Math.min(mHeight - 1, v));
-
-//            Log.e("blah", "x: " + tc.getX() +" y: " + tc.getY() + "   U: " + u + " v: " + v);
 
             memPitch = mWidth * mChannels;
             offset = u + (v * memPitch);
@@ -185,14 +161,6 @@ public class Texture
             mData.put(offset + 2, (byte)mBrushColor.getB());
             mData.put(offset + 3, (byte)255);
         }
-
-/*        for(int i = 0; i < mBufferSize-3; i+=4)
-        {
-            mData.put(i, (byte)128);
-            mData.put(i+1, (byte)255);
-            mData.put(i+2, (byte)64);
-            mData.put(i+3, (byte)255);
-        }*/
     }
 
     private void setBrushColor(RGBColor newColor)
